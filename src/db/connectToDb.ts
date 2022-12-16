@@ -5,10 +5,7 @@ const connectToDb = async () => {
     const connection = await dataSource.initialize();
 
     // eslint-disable-next-line no-console
-    console.log(
-      'DB connected',
-      { color: 'blue', font: 'small', immediateLog: true, topGap: true },
-    );
+    console.log('DB connected succcess!');
 
     process.on('SIGINT', async () => {
       if (!connection.isInitialized) {
@@ -16,7 +13,9 @@ const connectToDb = async () => {
       }
       await connection.destroy();
       // eslint-disable-next-line no-console
-      console.log('DB connection is disconnected due to application termination');
+      console.log(
+        'DB connection is disconnected due to application termination!',
+      );
       process.exit(0);
     });
 

@@ -1,8 +1,10 @@
+/* eslint-disable no-console */
 import { DataSource } from 'typeorm';
 import path from 'path';
 
 import config from '../config';
 
+console.log(config);
 const dataSource = new DataSource({
   type: 'postgres',
   host: config.postgresDb.host,
