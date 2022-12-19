@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import dotenv from 'dotenv';
 import fs from 'fs';
 
@@ -14,7 +13,7 @@ const mainConfig = {
 const config = {
   postgresDb: {
     host: mainConfig.POSTGRES_DB_HOST,
-    port: Number(defaultConfig.POSTGRES_DB_PORT),
+    port: Number(mainConfig.POSTGRES_DB_PORT),
     user: mainConfig.POSTGRES_DB_USER,
     password: mainConfig.POSTGRES_DB_PASSWORD,
     database: mainConfig.POSTGRES_DB_NAME,
@@ -22,8 +21,12 @@ const config = {
   },
 
   server: {
-    // port: defaultConfig.CURRENT_URL,
-    port: 4000,
+    port: mainConfig.SERVER_PORT,
+    endpoint: mainConfig.SERVER_ENDPOINTS_PREFIX,
+  },
+
+  token: {
+    secret: mainConfig.TOKEN_SECRET,
   },
 };
 
