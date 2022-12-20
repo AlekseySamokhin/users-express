@@ -27,6 +27,11 @@ const config = {
 
   token: {
     secret: mainConfig.TOKEN_SECRET,
+    expiration: mainConfig.TOKEN_AUTH_EXPIRATION,
+  },
+
+  bcrypt: {
+    salt: mainConfig.PASSWORD_HASH_SALT,
   },
 };
 

@@ -1,1 +1,1 @@
-# Express JS, Typescript and PostgreSQL
+# JWT Auth, Express JS, Typescript, CRUD with PostgreSQL

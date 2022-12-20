@@ -1,27 +1,10 @@
-/* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
+import bcrypt from 'bcrypt';
 
-import jwtToken from 'src/utils/jwtToken';
-
+import createToken from '../utils/jwt';
+import config from '../config';
 import userRepository from '../db';
-
 import User from '../db/entities/User';
-
-// const signupGet = (req: Request, res: Response) => {
-//   res.render('signup');
-// };
-
-// const loginGet = (req: Request, res: Response) => {
-//   res.render('login');
-// };
-
-// const signupPost = async (req: Request, res: Response) => {
-//   const { email, password } = req.body;
-//   console.log(email);
-//   console.log(password);
-
-//   res.end('new signup');
-// };
 
 const singUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -29,54 +12,74 @@ const singUp = async (req: Request, res: Response, next: NextFunction) => {
 
     const user = new User();
 
-    const userEmail = await userRepository.findOne({ where: email });
-
-    if (userEmail) {
-      user.email = email;
-    }
-
     user.fullName = fullName.trim();
     user.email = email.trim().toLowerCase();
+    user.dob = dob;
 
-    user.password = password;
+    const findUserByEmail = await userRepository.findOneBy({ email });
+    // eslint-disable-next-line no-console
+    console.log(findUserByEmail);
+    // if (findUserByEmail.email) {
+    //   throw new Error('Пользователь с таким паролем уже существует!');
+    // }
+
+    // if (findUserByEmail) {
+    user.email = email;
+    // }
+
+    user.password = bcrypt.hashSync(password, Number(config.bcrypt.salt));
+
+    const id = user.id;
+
+    const token = createToken(id);
 
     await userRepository.save(user);
 
-    res.status(201).json({ user: user.id });
+    delete user.password;
+
+    res.status(201).json({ user, token });
   } catch (err) {
     next(err);
   }
 };
 
-// const singUp: HandlerSingUpType = async (req, res, next) => {
-//   try {
-//     const { email, fullName, dob, password } = req.body;
+const logIn = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, password } = req.body;
 
-//     const user = new User();
-//     const emailUser = await findDubleEmail(email);
+    const user = await userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.email = :email', { email })
+      .getOne();
 
-//     user.fullName = fullName.trim();
-//     user.email = emailUser.trim().toLowerCase();
+    if (!user) {
+      throw new Error(
+        'Пользователь с таким логином или паролем не существует!'
+      );
+    }
 
-//     user.password = await hashPassword.hash(password);
-//     user.dob = new Date(dob);
+    const comparePasswords = await bcrypt.compare(password, user.password);
 
-//     const token = tokenJwt.createToken(user.id);
+    if (!comparePasswords) {
+      throw new Error(
+        'Пользователь с таким логином или паролем не существует!'
+      );
+    }
 
-//     await db.user.save(user);
+    const token = createToken(user.id);
 
-//     delete user.password;
-//     res.status(StatusCodes.CREATED).json({ user, token });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+    delete user.password;
+
+    res.status(201).json({ user, token });
+  } catch (err) {
+    next(err);
+  }
+};
 
 const authController = {
-  signupGet,
-  loginGet,
-  signupPost,
-  loginPost,
+  singUp,
+  logIn,
 };
 
 export default authController;

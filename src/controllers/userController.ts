@@ -1,46 +1,23 @@
 import type { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 
 import userRepository from '../db';
 
-import User from '../db/entities/User';
-
-const createUser = async (req: Request, res: Response) => {
+const removeUser = async (req: Request, res: Response) => {
   try {
-    const { fullName, email, password, dob } = req.body;
+    const id = Number(req.params.id);
 
-    const user = new User();
+    const user = userRepository.findOneBy({ id });
 
-    user.fullName = fullName;
-    user.email = email;
-    user.password = password;
-    user.dob = dob;
+    if (!user) {
+      throw new Error('Пользователь не найден');
+    }
 
-    await userRepository.save(user);
+    await userRepository.delete(id);
 
-    res.json(user);
+    return res.status(StatusCodes.OK).send({ message: 'User deleted!', user });
   } catch (err) {
-    res.status(500).send(err.message);
-  }
-};
-
-const deleteUser = async (req: Request, res: Response) => {
-  try {
-    const results = await userRepository.delete(req.params.id);
-    return res.send(results);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-};
-
-const getUser = async (req: Request, res: Response) => {
-  try {
-    const user = await userRepository.findOneBy({
-      id: req.params.id,
-    });
-
-    return res.json(user);
-  } catch (err) {
-    res.status(500).send(err.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
   }
 };
 
@@ -48,26 +25,56 @@ const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await userRepository.find();
 
-    res.json(users);
+    res.status(StatusCodes.OK).send({ users });
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+  }
+};
+
+const getUser = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id);
+
+    const user = userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new Error('Пользователь не найден');
+    }
+
+    return res.status(StatusCodes.OK).send({ user });
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
   }
 };
 
 const updateUser = async (req: Request, res: Response) => {
-  const user = await userRepository.findOneBy({
-    id: req.params.id,
-  });
+  try {
+    const { fullName, email, dob } = req.body;
 
-  userRepository.merge(user, req.body);
-  const results = await userRepository.save(user);
+    const id = Number(req.params.id);
 
-  return res.send(results);
+    const userToUpdate = await userRepository.findOneBy({ id });
+
+    if (!userToUpdate) {
+      throw new Error('Пользователь не найден');
+    }
+
+    userRepository.merge(userToUpdate, {
+      fullName: fullName || userToUpdate.fullName,
+      email: email || userToUpdate.email,
+      dob: dob || userToUpdate.dob,
+    });
+
+    await userRepository.save(userToUpdate);
+
+    return res.status(StatusCodes.OK).send({ userToUpdate });
+  } catch (err) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+  }
 };
 
 const userController = {
-  deleteUser,
-  createUser,
+  removeUser,
   getUser,
   getUsers,
   updateUser,
