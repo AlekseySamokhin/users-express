@@ -30,7 +30,7 @@ const config = {
     expiration: mainConfig.TOKEN_AUTH_EXPIRATION,
   },
 
-  bcrypt: {
+  pass: {
     salt: mainConfig.PASSWORD_HASH_SALT,
   },
 };

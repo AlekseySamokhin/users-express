@@ -2,17 +2,21 @@ import jwt from 'jsonwebtoken';
 
 import config from '../config';
 
-const createToken = (id: number) => {
+import type IJwtPayload from '../interfaces/token';
+
+const genetate = (id: number) => {
   return jwt.sign({ id }, config.token.secret, {
-    expiresIn: '60m',
+    expiresIn: config.token.expiration,
   });
 };
 
-const parseToken = (token: string) => {
-  return jwt.verify(token, config.token.secret);
+const parse = (token: string) => {
+  return jwt.verify(token, config.token.secret) as IJwtPayload;
 };
 
-export default {
-  createToken,
-  parseToken,
+const token = {
+  genetate,
+  parse,
 };
+
+export default token;

@@ -8,10 +8,10 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   fullName: string;
 
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar', unique: true, nullable: false })
   email: string;
 
-  @Column({ type: 'varchar', select: false })
+  @Column({ type: 'varchar', select: false, nullable: false })
   password: string;
 
   @Column({ type: 'date', nullable: true })

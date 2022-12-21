@@ -15,7 +15,7 @@ const removeUser = async (req: Request, res: Response) => {
 
     await userRepository.delete(id);
 
-    return res.status(StatusCodes.OK).send({ message: 'User deleted!', user });
+    return res.status(StatusCodes.OK).send({ message: 'User deleted!' });
   } catch (err) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
   }

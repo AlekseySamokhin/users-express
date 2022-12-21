@@ -1,7 +1,9 @@
+/* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import bcrypt from 'bcrypt';
 
-import createToken from '../utils/jwt';
+import token from '../utils/jwt';
 import config from '../config';
 import userRepository from '../db';
 import User from '../db/entities/User';
@@ -16,28 +18,21 @@ const singUp = async (req: Request, res: Response, next: NextFunction) => {
     user.email = email.trim().toLowerCase();
     user.dob = dob;
 
-    const findUserByEmail = await userRepository.findOneBy({ email });
-    // eslint-disable-next-line no-console
-    console.log(findUserByEmail);
-    // if (findUserByEmail.email) {
-    //   throw new Error('Пользователь с таким паролем уже существует!');
-    // }
+    // const oldUser = await userRepository.findOneBy({ email });
 
-    // if (findUserByEmail) {
     user.email = email;
-    // }
 
-    user.password = bcrypt.hashSync(password, Number(config.bcrypt.salt));
+    const hashedPassword = bcrypt.hashSync(password, Number(config.pass.salt));
 
-    const id = user.id;
-
-    const token = createToken(id);
+    user.password = hashedPassword;
 
     await userRepository.save(user);
 
+    const generatedToken = token.genetate(user.id);
+
     delete user.password;
 
-    res.status(201).json({ user, token });
+    res.status(StatusCodes.OK).json({ user, generatedToken });
   } catch (err) {
     next(err);
   }
@@ -55,23 +50,23 @@ const logIn = async (req: Request, res: Response, next: NextFunction) => {
 
     if (!user) {
       throw new Error(
-        'Пользователь с таким логином или паролем не существует!'
+        'Пользователь с таким логином или паролем не существует!',
       );
     }
 
-    const comparePasswords = await bcrypt.compare(password, user.password);
+    const doPasswordsMatch = await bcrypt.compare(password, user.password);
 
-    if (!comparePasswords) {
+    if (!doPasswordsMatch) {
       throw new Error(
-        'Пользователь с таким логином или паролем не существует!'
+        'Пользователь с таким логином или паролем не существует!',
       );
     }
 
-    const token = createToken(user.id);
+    const generatedToken = token.genetate(user.id);
 
     delete user.password;
 
-    res.status(201).json({ user, token });
+    res.status(StatusCodes.OK).json({ user, generatedToken });
   } catch (err) {
     next(err);
   }

@@ -1,11 +1,13 @@
 import express from 'express';
 
-import authRoutes from './authRoutes';
-import userRoutes from './userRoutes';
+import checkAuth from '../middlewares/authMiddleware';
 
-const routes = express.Router();
+import authRouter from './authRouter';
+import userRouter from './userRouter';
 
-routes.use('/login', authRoutes);
-routes.use('/auth', userRoutes);
+const router = express.Router();
 
-export default routes;
+router.use('/auth', authRouter);
+router.use('/login', checkAuth, userRouter);
+
+export default router;
