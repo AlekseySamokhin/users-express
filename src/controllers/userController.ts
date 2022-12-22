@@ -1,82 +1,104 @@
-import type { Request, Response } from 'express';
+/* eslint-disable no-console */
+import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import userRepository from '../db';
+import dbUsers from '../db';
 
-const removeUser = async (req: Request, res: Response) => {
+import { errors, success } from '../constants';
+
+import type ITypeBodyReq from '../interfaces/bodyReq';
+
+const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = Number(req.params.id);
+    const allUsers = await dbUsers.find();
 
-    const user = userRepository.findOneBy({ id });
-
-    if (!user) {
-      throw new Error('Пользователь не найден');
-    }
-
-    await userRepository.delete(id);
-
-    return res.status(StatusCodes.OK).send({ message: 'User deleted!' });
+    res.status(StatusCodes.OK).send({ allUsers });
   } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    next(err);
   }
 };
 
-const getUsers = async (req: Request, res: Response) => {
-  try {
-    const users = await userRepository.find();
-
-    res.status(StatusCodes.OK).send({ users });
-  } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
-  }
-};
-
-const getUser = async (req: Request, res: Response) => {
+const getUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = Number(req.params.id);
 
-    const user = userRepository.findOneBy({ id });
+    const user = await dbUsers.findOneBy({ id });
 
     if (!user) {
-      throw new Error('Пользователь не найден');
+      throw new Error(errors.USERS_NOT_FOUND);
     }
 
     return res.status(StatusCodes.OK).send({ user });
   } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    next(err);
   }
 };
 
-const updateUser = async (req: Request, res: Response) => {
+const removeUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { fullName, email, dob } = req.body;
+    const allUsers = await dbUsers.find();
+
+    allUsers.forEach((user) => {
+      dbUsers.delete(user.id);
+    });
+
+    res.status(StatusCodes.OK).send({ message: success.USERS_DELETE });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const removeUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = Number(req.params.id);
+
+    const user = await dbUsers.findOneBy({ id });
+
+    if (!user) {
+      throw new Error(errors.USERS_NOT_FOUND);
+    }
+
+    await dbUsers.delete(id);
+
+    return res.status(StatusCodes.OK).send({ message: success.USER_DELETE });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { fullName, email, dob } = req.body as ITypeBodyReq;
 
     const id = Number(req.params.id);
 
-    const userToUpdate = await userRepository.findOneBy({ id });
+    const user = await dbUsers.findOneBy({ id });
 
-    if (!userToUpdate) {
-      throw new Error('Пользователь не найден');
+    if (!user) {
+      throw new Error(errors.USERS_NOT_FOUND);
     }
 
-    userRepository.merge(userToUpdate, {
-      fullName: fullName || userToUpdate.fullName,
-      email: email || userToUpdate.email,
-      dob: dob || userToUpdate.dob,
-    });
+    const updatedUser = {
+      fullName: fullName || user.fullName,
+      email: email || user.email,
+      dob: dob || user.dob,
+    };
 
-    await userRepository.save(userToUpdate);
+    dbUsers.merge(user, updatedUser);
 
-    return res.status(StatusCodes.OK).send({ userToUpdate });
+    await dbUsers.save(user);
+
+    return res.status(StatusCodes.OK).send({ message: success.USER_UPDATE });
   } catch (err) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(err.message);
+    next(err);
   }
 };
 
 const userController = {
-  removeUser,
-  getUser,
   getUsers,
+  getUser,
+  removeUsers,
+  removeUser,
   updateUser,
 };
 

@@ -1,38 +1,42 @@
 /* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import bcrypt from 'bcrypt';
 
-import token from '../utils/jwt';
-import config from '../config';
-import userRepository from '../db';
 import User from '../db/entities/User';
+import dbUsers from '../db';
+import { errors } from '../constants';
+
+import { passUtils, jwtUtils } from '../utils';
+
+import type ITypeBodyReq from '../interfaces/bodyReq';
 
 const singUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, fullName, dob, password } = req.body;
+    const { email, fullName, dob, password } = req.body as ITypeBodyReq;
 
-    const user = new User();
+    const newUser = new User();
 
-    user.fullName = fullName.trim();
-    user.email = email.trim().toLowerCase();
-    user.dob = dob;
+    newUser.fullName = fullName.trim();
 
-    // const oldUser = await userRepository.findOneBy({ email });
+    const existUser = await dbUsers.findOneBy({ email });
 
-    user.email = email;
+    if (existUser) {
+      throw new Error(errors.EMAIL_NOT_EXIST);
+    }
 
-    const hashedPassword = bcrypt.hashSync(password, Number(config.pass.salt));
+    newUser.email = email.trim().toLowerCase();
+    newUser.dob = new Date(dob) || dob;
+    newUser.password = passUtils.hash(password);
 
-    user.password = hashedPassword;
+    await dbUsers.save(newUser);
 
-    await userRepository.save(user);
+    const token = jwtUtils.genetate(newUser.id);
 
-    const generatedToken = token.genetate(user.id);
+    const resData = { newUser, token };
 
-    delete user.password;
+    delete newUser.password;
 
-    res.status(StatusCodes.OK).json({ user, generatedToken });
+    res.status(StatusCodes.OK).json(resData);
   } catch (err) {
     next(err);
   }
@@ -40,33 +44,31 @@ const singUp = async (req: Request, res: Response, next: NextFunction) => {
 
 const logIn = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body as ITypeBodyReq;
 
-    const user = await userRepository
+    const existUser = await dbUsers
       .createQueryBuilder('user')
       .addSelect('user.password')
       .where('user.email = :email', { email })
       .getOne();
 
-    if (!user) {
-      throw new Error(
-        'Пользователь с таким логином или паролем не существует!',
-      );
+    if (!existUser) {
+      throw new Error(errors.USERS_NOT_FOUND);
     }
 
-    const doPasswordsMatch = await bcrypt.compare(password, user.password);
+    const doPasswordsMatch = passUtils.compare(password, existUser.password);
 
     if (!doPasswordsMatch) {
-      throw new Error(
-        'Пользователь с таким логином или паролем не существует!',
-      );
+      throw new Error(errors.USERS_NOT_FOUND);
     }
 
-    const generatedToken = token.genetate(user.id);
+    const token = jwtUtils.genetate(existUser.id);
 
-    delete user.password;
+    const resData = { existUser, token };
 
-    res.status(StatusCodes.OK).json({ user, generatedToken });
+    delete existUser.password;
+
+    res.status(StatusCodes.OK).json(resData);
   } catch (err) {
     next(err);
   }

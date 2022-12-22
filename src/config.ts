@@ -9,7 +9,6 @@ const mainConfig = {
   ...localConfig,
 };
 
-// Get data from the .env and default.env files.
 const config = {
   postgresDb: {
     host: mainConfig.POSTGRES_DB_HOST,
@@ -25,12 +24,12 @@ const config = {
     endpoint: mainConfig.SERVER_ENDPOINTS_PREFIX,
   },
 
-  token: {
-    secret: mainConfig.TOKEN_SECRET,
-    expiration: mainConfig.TOKEN_AUTH_EXPIRATION,
+  jwt: {
+    privateKey: mainConfig.TOKEN_SECRET,
+    expiresIn: mainConfig.TOKEN_AUTH_EXPIRATION,
   },
 
-  pass: {
+  password: {
     salt: mainConfig.PASSWORD_HASH_SALT,
   },
 };

@@ -1,43 +1,38 @@
-import type { Handler, NextFunction, Request, Response } from 'express';
-import { StatusCodes } from 'http-status-codes';
+import type { Handler, NextFunction, Response } from 'express';
 
-import userRepository from '../db';
+import dbUsers from '../db';
 
-import token from '../utils/jwt';
+import token from '../utils/jwtUtils';
 
-export interface IGetUserAuthInfoRequest extends Request {
-  user: object;
-}
+import type IAuthRequest from '../interfaces/reqAuth';
+
+import { errors } from '../constants';
 
 const checkAuth: Handler = async (
-  req: IGetUserAuthInfoRequest,
+  req: IAuthRequest,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const authHeader = req.headers.authorization.split(' ');
 
-    const [bearer, foundToken] = authHeader;
+    const [typeToken, foundToken] = authHeader;
 
-    if (bearer.toLowerCase() !== 'bearer') {
-      throw new Error('Токен не валиден');
+    if (typeToken.toLowerCase() !== 'bearer') {
+      throw new Error(errors.TOKEN_NOT_VALID);
     }
 
     if (!token) {
-      throw new Error('Пользователь не авторизован!');
+      throw new Error(errors.USER_NOT_AUTH);
     }
 
     const { id } = token.parse(foundToken);
 
-    const user = await userRepository.findOneBy({ id });
-
-    req.user = user;
+    req.user = await dbUsers.findOneBy({ id });
 
     next();
-  } catch {
-    res
-      .status(StatusCodes.FORBIDDEN)
-      .json({ error: 'Пользователь не авторизован!' });
+  } catch (err) {
+    next(err);
   }
 };
 
