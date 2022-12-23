@@ -1,4 +1,6 @@
 import success from './success';
 import errors from './errors';
 
-export { success, errors };
+const message = { success, errors };
+
+export default message;

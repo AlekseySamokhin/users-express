@@ -1,4 +1,6 @@
 import jwtUtils from './jwtUtils';
 import passUtils from './passUtils';
 
-export { jwtUtils, passUtils };
+import message from './constants';
+
+export { jwtUtils, passUtils, message };

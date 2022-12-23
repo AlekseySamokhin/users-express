@@ -2,37 +2,33 @@ import type { Handler, NextFunction, Response } from 'express';
 
 import dbUsers from '../db';
 
-import token from '../utils/jwtUtils';
+import { message, jwtUtils } from '../utils';
 
 import type IAuthRequest from '../interfaces/reqAuth';
 
-import { errors } from '../constants';
-
-const checkAuth: Handler = async (
-  req: IAuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const checkAuth: Handler = async (req: IAuthRequest, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization.split(' ');
 
     const [typeToken, foundToken] = authHeader;
 
-    if (typeToken.toLowerCase() !== 'bearer') {
-      throw new Error(errors.TOKEN_NOT_VALID);
+    if (!foundToken) {
+      throw new Error(message.errors.USER_NOT_AUTH);
     }
 
-    if (!token) {
-      throw new Error(errors.USER_NOT_AUTH);
+    const checkToken = jwtUtils.validate(typeToken);
+
+    if (!checkToken) {
+      throw new Error(message.errors.TOKEN_NOT_VALID);
     }
 
-    const { id } = token.parse(foundToken);
+    const { id } = jwtUtils.parse(foundToken);
 
     req.user = await dbUsers.findOneBy({ id });
 
-    next();
+    return next();
   } catch (err) {
-    next(err);
+    return next(err);
   }
 };
 

@@ -1,12 +1,10 @@
-/* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import User from '../db/entities/User';
 import dbUsers from '../db';
-import { errors } from '../constants';
 
-import { passUtils, jwtUtils } from '../utils';
+import { passUtils, jwtUtils, message } from '../utils';
 
 import type ITypeBodyReq from '../interfaces/bodyReq';
 
@@ -21,7 +19,7 @@ const singUp = async (req: Request, res: Response, next: NextFunction) => {
     const existUser = await dbUsers.findOneBy({ email });
 
     if (existUser) {
-      throw new Error(errors.EMAIL_NOT_EXIST);
+      throw new Error(message.errors.EMAIL_NOT_EXIST);
     }
 
     newUser.email = email.trim().toLowerCase();
@@ -36,7 +34,9 @@ const singUp = async (req: Request, res: Response, next: NextFunction) => {
 
     delete newUser.password;
 
-    res.status(StatusCodes.OK).json(resData);
+    return res
+      .status(StatusCodes.OK)
+      .json({ message: message.success.USER_REGISTER, resData });
   } catch (err) {
     next(err);
   }
@@ -53,13 +53,13 @@ const logIn = async (req: Request, res: Response, next: NextFunction) => {
       .getOne();
 
     if (!existUser) {
-      throw new Error(errors.USERS_NOT_FOUND);
+      throw new Error(message.errors.USERS_NOT_FOUND);
     }
 
     const doPasswordsMatch = passUtils.compare(password, existUser.password);
 
     if (!doPasswordsMatch) {
-      throw new Error(errors.USERS_NOT_FOUND);
+      throw new Error(message.errors.WRONG_PASSWORD);
     }
 
     const token = jwtUtils.genetate(existUser.id);
@@ -68,9 +68,11 @@ const logIn = async (req: Request, res: Response, next: NextFunction) => {
 
     delete existUser.password;
 
-    res.status(StatusCodes.OK).json(resData);
+    return res
+      .status(StatusCodes.OK)
+      .json({ message: message.success.USER_LOGIN, resData });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 };
 

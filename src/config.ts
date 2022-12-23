@@ -27,6 +27,7 @@ const config = {
   jwt: {
     privateKey: mainConfig.TOKEN_SECRET,
     expiresIn: mainConfig.TOKEN_AUTH_EXPIRATION,
+    type: mainConfig.TOKEN_TYPE,
   },
 
   password: {
