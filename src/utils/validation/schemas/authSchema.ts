@@ -8,14 +8,14 @@ const singUpSchema = yup.object({
       .trim()
       .email('Must be a valid email!')
       .required('Email field cannot be empty!'),
-    password: yup.string().min(6).required(),
+    password: yup.string().trim().min(6).required(),
     dob: yup.date(),
   }),
 });
 
 const logInSchema = yup.object({
   body: yup.object({
-    email: yup.string().trim().email('Must be a valid email!').required(),
+    email: yup.string().trim().email('Must be a valid email!').required('Email field cannot be empty!'),
     password: yup.string().min(6).required(),
   }),
 });

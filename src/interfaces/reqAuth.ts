@@ -1,8 +1,9 @@
 import type { Request } from 'express';
-import type IBodyType from './bodyReq';
+import type User from 'src/db/entities/User';
+// import type IBodyType from './bodyReq';
 
 interface IAuthRequest extends Request {
-  user: IBodyType;
+  user: User;
 }
 
 export default IAuthRequest;

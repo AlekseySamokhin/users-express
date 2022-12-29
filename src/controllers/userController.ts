@@ -1,19 +1,21 @@
 import type { NextFunction, Request, Response } from 'express';
-import { StatusCodes } from 'http-status-codes';
+import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 
 import dbUsers from '../db';
 
-import type ITypeBodyReq from '../interfaces/bodyReq';
+import type IBodyReq from '../interfaces/bodyReq';
 
 import { passUtils, message } from '../utils';
+
+import HttpError from '../utils/httpError';
 
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const allUsers = await dbUsers.find();
 
-    return res.status(StatusCodes.OK).send({ allUsers });
+    res.status(StatusCodes.OK).json({ allUsers });
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };
 
@@ -24,12 +26,16 @@ const getUser = async (req: Request, res: Response, next: NextFunction) => {
     const user = await dbUsers.findOneBy({ id });
 
     if (!user) {
-      throw new Error(message.errors.USERS_NOT_FOUND);
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        ReasonPhrases.NOT_FOUND,
+        message.errors.USERS_NOT_FOUND,
+      );
     }
 
-    return res.status(StatusCodes.OK).send({ user });
+    res.status(StatusCodes.OK).json({ user });
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };
 
@@ -41,9 +47,9 @@ const removeUsers = async (req: Request, res: Response, next: NextFunction) => {
       dbUsers.delete(user.id);
     });
 
-    return res.status(StatusCodes.OK).send({ message: message.success.USERS_DELETE });
+    res.status(StatusCodes.OK).json({ message: message.success.USERS_DELETE });
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };
 
@@ -54,20 +60,24 @@ const removeUser = async (req: Request, res: Response, next: NextFunction) => {
     const user = await dbUsers.findOneBy({ id });
 
     if (!user) {
-      throw new Error(message.errors.USERS_NOT_FOUND);
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        ReasonPhrases.NOT_FOUND,
+        message.errors.USERS_NOT_FOUND,
+      );
     }
 
     await dbUsers.delete(id);
 
-    return res.status(StatusCodes.OK).send({ message: message.success.USER_DELETE });
+    res.status(StatusCodes.OK).json({ message: message.success.USER_DELETE });
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };
 
 const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { fullName: newFullName, email: newEmail } = req.body as ITypeBodyReq;
+    const { fullName: newFullName, email: newEmail } = req.body as IBodyReq;
 
     let newPassword = req.body.password;
 
@@ -80,16 +90,27 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
       .getOne();
 
     if (!existUser) {
-      throw new Error(message.errors.USERS_NOT_FOUND);
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        ReasonPhrases.NOT_FOUND,
+        message.errors.USERS_NOT_FOUND,
+      );
     }
 
     if (newPassword) {
       const hashedPassword = passUtils.hash(newPassword);
 
-      const doPasswordsMatch = passUtils.compare(newPassword, existUser.password);
+      const doPasswordsMatch = passUtils.compare(
+        newPassword,
+        existUser.password,
+      );
 
-      if (doPasswordsMatch) {
-        throw new Error(message.errors.REPEAT_PASSWORD);
+      if (!doPasswordsMatch) {
+        throw new HttpError(
+          StatusCodes.NOT_FOUND,
+          ReasonPhrases.NOT_FOUND,
+          message.errors.USERS_NOT_FOUND,
+        );
       }
 
       newPassword = hashedPassword;
@@ -105,9 +126,9 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
 
     await dbUsers.save(existUser);
 
-    return res.status(StatusCodes.OK).send({ message: message.success.USER_UPDATE });
+    res.status(StatusCodes.OK).json({ message: message.success.USER_UPDATE });
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };
 

@@ -1,16 +1,20 @@
 import type { NextFunction, Request, Response } from 'express';
-import { StatusCodes } from 'http-status-codes';
+import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 
 import User from '../db/entities/User';
 import dbUsers from '../db';
 
 import { passUtils, jwtUtils, message } from '../utils';
 
-import type ITypeBodyReq from '../interfaces/bodyReq';
+import HttpError from '../utils/httpError';
+
+import type IBodyReq from '../interfaces/bodyReq';
 
 const singUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, fullName, dob, password } = req.body as ITypeBodyReq;
+    /* eslint-disable no-console */
+    // console.log(req.body);
+    const { email, fullName, dob, password } = req.body as IBodyReq;
 
     const newUser = new User();
 
@@ -19,7 +23,11 @@ const singUp = async (req: Request, res: Response, next: NextFunction) => {
     const existUser = await dbUsers.findOneBy({ email });
 
     if (existUser) {
-      throw new Error(message.errors.EMAIL_NOT_EXIST);
+      throw new HttpError(
+        StatusCodes.FORBIDDEN,
+        ReasonPhrases.FORBIDDEN,
+        message.errors.EMAIL_NOT_EXIST,
+      );
     }
 
     newUser.email = email.trim().toLowerCase();
@@ -34,9 +42,7 @@ const singUp = async (req: Request, res: Response, next: NextFunction) => {
 
     delete newUser.password;
 
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: message.success.USER_REGISTER, resData });
+    res.status(StatusCodes.OK).json({ message: message.success.USER_REGISTER, resData });
   } catch (err) {
     next(err);
   }
@@ -44,7 +50,7 @@ const singUp = async (req: Request, res: Response, next: NextFunction) => {
 
 const logIn = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, password } = req.body as ITypeBodyReq;
+    const { email, password } = req.body as IBodyReq;
 
     const existUser = await dbUsers
       .createQueryBuilder('user')
@@ -53,7 +59,11 @@ const logIn = async (req: Request, res: Response, next: NextFunction) => {
       .getOne();
 
     if (!existUser) {
-      throw new Error(message.errors.USERS_NOT_FOUND);
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        ReasonPhrases.NOT_FOUND,
+        message.errors.USERS_NOT_FOUND,
+      );
     }
 
     const doPasswordsMatch = passUtils.compare(password, existUser.password);
@@ -68,11 +78,9 @@ const logIn = async (req: Request, res: Response, next: NextFunction) => {
 
     delete existUser.password;
 
-    return res
-      .status(StatusCodes.OK)
-      .json({ message: message.success.USER_LOGIN, resData });
+    res.status(StatusCodes.OK).json({ message: message.success.USER_LOGIN, resData });
   } catch (err) {
-    return next(err);
+    next(err);
   }
 };
 

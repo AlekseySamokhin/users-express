@@ -22,6 +22,8 @@ const config = {
   server: {
     port: mainConfig.SERVER_PORT,
     endpoint: mainConfig.SERVER_ENDPOINTS_PREFIX,
+    error: mainConfig.SERVER_INTERNAL_ERROR_MESSAGE,
+    name: mainConfig.SERVER_MESSAGE,
   },
 
   jwt: {

@@ -5,7 +5,7 @@ import cors from 'cors';
 import routes from './routes';
 import config from './config';
 
-import errorHandler from './middlewares/errorMiddleware';
+import errorHandler from './middlewares/errorHandler';
 
 const {
   server: { endpoint },
