@@ -9,14 +9,14 @@ import errorHandler from './middlewares/errorHandler';
 
 const {
   server: { endpoint },
-  postgresDb: { host },
+  // postgresDb: { host },
 } = config;
 
 const app = express();
 app.use(express.json());
 
 const corsOptions = {
-  origin: host,
+  origin: 'http://localhost:3000',
 };
 
 app.use(cors(corsOptions));
