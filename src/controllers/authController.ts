@@ -12,13 +12,11 @@ import type IBodyReq from '../interfaces/bodyReq';
 
 const singUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    /* eslint-disable no-console */
-    // console.log(req.body);
-    const { email, fullName, dob, password } = req.body as IBodyReq;
+    const { email, password } = req.body as IBodyReq;
 
     const newUser = new User();
 
-    newUser.fullName = fullName.trim();
+    newUser.fullName = '';
 
     const existUser = await dbUsers.findOneBy({ email });
 
@@ -26,25 +24,21 @@ const singUp = async (req: Request, res: Response, next: NextFunction) => {
       throw new HttpError(
         StatusCodes.FORBIDDEN,
         ReasonPhrases.FORBIDDEN,
-        message.errors.EMAIL_NOT_EXIST
+        message.errors.EMAIL_NOT_EXIST,
       );
     }
 
     newUser.email = email.trim().toLowerCase();
-    newUser.dob = new Date(dob) || dob;
+    // newUser.dob = new Date(dob) || dob;
     newUser.password = passUtils.hash(password);
 
     await dbUsers.save(newUser);
 
-    const token = jwtUtils.genetate(newUser.id);
-
-    const resData = { newUser, token };
+    const accessToken = jwtUtils.genetate(newUser.id);
 
     delete newUser.password;
 
-    res
-      .status(StatusCodes.OK)
-      .json({ message: message.success.USER_REGISTER, resData });
+    res.status(StatusCodes.OK).json({ newUser, accessToken });
   } catch (err) {
     next(err);
   }
@@ -95,23 +89,20 @@ const logIn = async (req: Request, res: Response, next: NextFunction) => {
 const getUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.headers.authorization) {
-      console.log(2);
       throw new HttpError(
         StatusCodes.NOT_FOUND,
         ReasonPhrases.NOT_FOUND,
-        'Пользователь не авторизован',
+        'Пользователь не авторизован'
       );
     }
 
     const token: string = req.headers.authorization.split(' ')[1];
 
-    console.log(token);
-
     const { id } = jwtUtils.parse(token);
 
-    const dataUser = await dbUsers.findOne({ where: { id } });
+    const currentUser = await dbUsers.findOne({ where: { id } });
 
-    res.status(StatusCodes.OK).json(dataUser);
+    res.status(StatusCodes.OK).json(currentUser);
   } catch (err) {
     next(err);
   }

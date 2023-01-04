@@ -17,7 +17,7 @@ const errorHandler = (err: Error, req: Request, res: Response) => {
     errObject.message = err.message;
   }
 
-  res.status(errObject.code || StatusCodes.INTERNAL_SERVER_ERROR).send({
+  res.status(errObject.code || StatusCodes.INTERNAL_SERVER_ERROR).json({
     name: errObject.name || name,
     message: errObject.message || error,
   });
