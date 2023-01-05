@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 
@@ -10,8 +11,9 @@ import HttpError from '../utils/httpError';
 
 import type IBodyReq from '../interfaces/bodyReq';
 
-const singUp = async (req: Request, res: Response, next: NextFunction) => {
+const signUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log(req.body);
     const { email, password } = req.body as IBodyReq;
 
     const newUser = new User();
@@ -44,7 +46,8 @@ const singUp = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const logIn = async (req: Request, res: Response, next: NextFunction) => {
+const signIn = async (req: Request, res: Response, next: NextFunction) => {
+  console.log(1);
   try {
     const { email, password } = req.body as IBodyReq;
 
@@ -58,7 +61,7 @@ const logIn = async (req: Request, res: Response, next: NextFunction) => {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
         ReasonPhrases.NOT_FOUND,
-        message.errors.USERS_NOT_FOUND
+        message.errors.USERS_NOT_FOUND,
       );
     }
 
@@ -68,19 +71,15 @@ const logIn = async (req: Request, res: Response, next: NextFunction) => {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
         ReasonPhrases.NOT_FOUND,
-        message.errors.USERS_NOT_FOUND
+        message.errors.USERS_NOT_FOUND,
       );
     }
 
-    const token = jwtUtils.genetate(existUser.id);
-
-    const resData = { existUser, token };
+    const accessToken = jwtUtils.genetate(existUser.id);
 
     delete existUser.password;
 
-    res
-      .status(StatusCodes.OK)
-      .json({ message: message.success.USER_LOGIN, resData });
+    res.status(StatusCodes.OK).json({ existUser, accessToken });
   } catch (err) {
     next(err);
   }
@@ -92,7 +91,7 @@ const getUser = async (req: Request, res: Response, next: NextFunction) => {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
         ReasonPhrases.NOT_FOUND,
-        'Пользователь не авторизован'
+        'Пользователь не авторизован',
       );
     }
 
@@ -109,8 +108,8 @@ const getUser = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const authController = {
-  singUp,
-  logIn,
+  signUp,
+  signIn,
   getUser,
 };
 

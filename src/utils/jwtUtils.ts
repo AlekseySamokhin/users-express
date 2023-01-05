@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import jwt from 'jsonwebtoken';
 
 import config from '../config';
@@ -5,6 +6,8 @@ import config from '../config';
 import type IJwtPayload from '../interfaces/jwtPayload';
 
 const { privateKey, expiresIn, type } = config.jwt;
+
+console.log(expiresIn);
 
 const genetate = (id: number): string => {
   return jwt.sign({ id }, privateKey, {

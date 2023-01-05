@@ -23,7 +23,11 @@ const config = {
     port: mainConfig.SERVER_PORT,
     endpoint: mainConfig.SERVER_ENDPOINTS_PREFIX,
     error: mainConfig.SERVER_INTERNAL_ERROR_MESSAGE,
-    name: mainConfig.SERVER_MESSAGE,
+    name: mainConfig.SERVER_INTERNAL_ERROR_MESSAGE,
+  },
+
+  client: {
+    url: mainConfig.CLIENT_APP_URL,
   },
 
   jwt: {

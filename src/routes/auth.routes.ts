@@ -7,8 +7,8 @@ import { logInSchema, singUpSchema } from '../utils/validation/schemas/authSchem
 
 const authRouter = express.Router();
 
-authRouter.post('/signup', validate(singUpSchema), authController.singUp);
-authRouter.post('/login', validate(logInSchema), authController.logIn);
+authRouter.post('/signup', validate(singUpSchema), authController.signUp);
+authRouter.post('/signin', validate(logInSchema), authController.signIn);
 authRouter.get('/me', authController.getUser);
 
 export default authRouter;
