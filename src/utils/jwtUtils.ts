@@ -7,9 +7,7 @@ import type IJwtPayload from '../interfaces/jwtPayload';
 
 const { privateKey, expiresIn, type } = config.jwt;
 
-console.log(expiresIn);
-
-const genetate = (id: number): string => {
+const generate = (id: number): string => {
   return jwt.sign({ id }, privateKey, {
     expiresIn,
   });
@@ -24,7 +22,7 @@ const validate = (token: string): boolean => {
 };
 
 const jwtUtils = {
-  genetate,
+  generate,
   parse,
   validate,
 };

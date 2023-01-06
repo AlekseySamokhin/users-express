@@ -36,11 +36,11 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
 
     await dbUsers.save(newUser);
 
-    const accessToken = jwtUtils.genetate(newUser.id);
+    const accessToken = jwtUtils.generate(newUser.id);
 
     delete newUser.password;
 
-    res.status(StatusCodes.OK).json({ newUser, accessToken });
+    res.status(StatusCodes.OK).json({ user: newUser, accessToken });
   } catch (err) {
     next(err);
   }
@@ -75,11 +75,11 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
       );
     }
 
-    const accessToken = jwtUtils.genetate(existUser.id);
+    const accessToken = jwtUtils.generate(existUser.id);
 
     delete existUser.password;
 
-    res.status(StatusCodes.OK).json({ existUser, accessToken });
+    res.status(StatusCodes.OK).json({ user: existUser, accessToken });
   } catch (err) {
     next(err);
   }
@@ -107,10 +107,6 @@ const getUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const authController = {
-  signUp,
-  signIn,
-  getUser,
-};
+const authController = { signUp, signIn, getUser };
 
 export default authController;
