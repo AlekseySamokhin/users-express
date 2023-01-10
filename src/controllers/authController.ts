@@ -4,17 +4,13 @@ import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 
 import User from '../db/entities/User';
 import dbUsers from '../db';
-
 import { passUtils, jwtUtils, message } from '../utils';
-
-import HttpError from '../utils/httpError';
-
-import type IBodyReq from '../interfaces/bodyReq';
+import { CustomError } from '../utils/CustomError';
+import type { IDataUserType } from '../interfaces/user';
 
 const signUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log(req.body);
-    const { email, password } = req.body as IBodyReq;
+    const { email, password } = req.body as IDataUserType;
 
     const newUser = new User();
 
@@ -23,7 +19,7 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
     const existUser = await dbUsers.findOneBy({ email });
 
     if (existUser) {
-      throw new HttpError(
+      throw new CustomError(
         StatusCodes.FORBIDDEN,
         ReasonPhrases.FORBIDDEN,
         message.errors.EMAIL_NOT_EXIST,
@@ -31,7 +27,6 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     newUser.email = email.trim().toLowerCase();
-    // newUser.dob = new Date(dob) || dob;
     newUser.password = passUtils.hash(password);
 
     await dbUsers.save(newUser);
@@ -47,9 +42,8 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const signIn = async (req: Request, res: Response, next: NextFunction) => {
-  console.log(1);
   try {
-    const { email, password } = req.body as IBodyReq;
+    const { email, password } = req.body as IDataUserType;
 
     const existUser = await dbUsers
       .createQueryBuilder('user')
@@ -58,7 +52,7 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
       .getOne();
 
     if (!existUser) {
-      throw new HttpError(
+      throw new CustomError(
         StatusCodes.NOT_FOUND,
         ReasonPhrases.NOT_FOUND,
         message.errors.USERS_NOT_FOUND,
@@ -68,7 +62,7 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
     const doPasswordsMatch = passUtils.compare(password, existUser.password);
 
     if (!doPasswordsMatch) {
-      throw new HttpError(
+      throw new CustomError(
         StatusCodes.NOT_FOUND,
         ReasonPhrases.NOT_FOUND,
         message.errors.USERS_NOT_FOUND,
@@ -85,13 +79,14 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getUser = async (req: Request, res: Response, next: NextFunction) => {
+const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (!req.headers.authorization) {
-      throw new HttpError(
+    console.log(1);
+    if (req.headers.authorization) {
+      throw new CustomError(
         StatusCodes.NOT_FOUND,
         ReasonPhrases.NOT_FOUND,
-        'Пользователь не авторизован',
+        message.errors.USERS_NOT_FOUND,
       );
     }
 
@@ -102,11 +97,11 @@ const getUser = async (req: Request, res: Response, next: NextFunction) => {
     const currentUser = await dbUsers.findOne({ where: { id } });
 
     res.status(StatusCodes.OK).json(currentUser);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };
 
-const authController = { signUp, signIn, getUser };
+const authController = { signUp, signIn, getCurrentUser };
 
 export default authController;

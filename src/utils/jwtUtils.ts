@@ -1,11 +1,14 @@
-/* eslint-disable no-console */
 import jwt from 'jsonwebtoken';
 
 import config from '../config';
 
-import type IJwtPayload from '../interfaces/jwtPayload';
+const {
+  jwt: { privateKey, expiresIn, type },
+} = config;
 
-const { privateKey, expiresIn, type } = config.jwt;
+interface ITokenPayloadType {
+  id: number;
+}
 
 const generate = (id: number): string => {
   return jwt.sign({ id }, privateKey, {
@@ -14,7 +17,7 @@ const generate = (id: number): string => {
 };
 
 const parse = (token: string) => {
-  return jwt.verify(token, privateKey) as IJwtPayload;
+  return jwt.verify(token, privateKey) as ITokenPayloadType;
 };
 
 const validate = (token: string): boolean => {

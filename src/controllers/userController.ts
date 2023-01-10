@@ -3,11 +3,11 @@ import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 
 import dbUsers from '../db';
 
-import type IBodyReq from '../interfaces/bodyReq';
+import type { IDataUserType } from '../interfaces/user';
 
 import { passUtils, message } from '../utils';
 
-import HttpError from '../utils/httpError';
+import { CustomError } from '../utils/CustomError';
 
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -26,7 +26,7 @@ const getUser = async (req: Request, res: Response, next: NextFunction) => {
     const user = await dbUsers.findOneBy({ id });
 
     if (!user) {
-      throw new HttpError(
+      throw new CustomError(
         StatusCodes.NOT_FOUND,
         ReasonPhrases.NOT_FOUND,
         message.errors.USERS_NOT_FOUND,
@@ -60,7 +60,7 @@ const removeUser = async (req: Request, res: Response, next: NextFunction) => {
     const user = await dbUsers.findOneBy({ id });
 
     if (!user) {
-      throw new HttpError(
+      throw new CustomError(
         StatusCodes.NOT_FOUND,
         ReasonPhrases.NOT_FOUND,
         message.errors.USERS_NOT_FOUND,
@@ -77,7 +77,7 @@ const removeUser = async (req: Request, res: Response, next: NextFunction) => {
 
 const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { fullName: newFullName, email: newEmail } = req.body as IBodyReq;
+    const { fullName: newFullName, email: newEmail } = req.body as IDataUserType;
 
     let newPassword = req.body.password;
 
@@ -90,7 +90,7 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
       .getOne();
 
     if (!existUser) {
-      throw new HttpError(
+      throw new CustomError(
         StatusCodes.NOT_FOUND,
         ReasonPhrases.NOT_FOUND,
         message.errors.USERS_NOT_FOUND,
@@ -106,7 +106,7 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
       );
 
       if (!doPasswordsMatch) {
-        throw new HttpError(
+        throw new CustomError(
           StatusCodes.NOT_FOUND,
           ReasonPhrases.NOT_FOUND,
           message.errors.USERS_NOT_FOUND,

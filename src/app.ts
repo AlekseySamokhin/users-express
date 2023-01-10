@@ -1,11 +1,10 @@
-/* eslint-disable no-console */
 import express from 'express';
 import cors from 'cors';
 
 import routes from './routes';
 import config from './config';
 
-import errorHandler from './middlewares/errorHandler';
+import { errorHandler } from './middlewares/errorHandler';
 
 const {
   server: { endpoint },
@@ -13,6 +12,7 @@ const {
 } = config;
 
 const app = express();
+
 app.use(express.json());
 
 const corsOptions = {

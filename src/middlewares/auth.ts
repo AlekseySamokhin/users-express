@@ -5,12 +5,12 @@ import dbUsers from '../db';
 
 import { message, jwtUtils } from '../utils';
 
-import HttpError from '../utils/httpError';
+import { CustomError } from '../utils/CustomError';
 
-import type IAuthRequest from '../interfaces/reqAuth';
+import type { IAuthRequestType } from '../interfaces/authRequest';
 
 const checkAuth: Handler = async (
-  req: IAuthRequest,
+  req: IAuthRequestType,
   res: Response,
   next: NextFunction,
 ) => {
@@ -20,7 +20,7 @@ const checkAuth: Handler = async (
     const [typeToken, foundToken] = authHeader;
 
     if (!foundToken) {
-      throw new HttpError(
+      throw new CustomError(
         StatusCodes.UNAUTHORIZED,
         ReasonPhrases.UNAUTHORIZED,
         message.errors.USER_NOT_AUTH,
@@ -30,7 +30,7 @@ const checkAuth: Handler = async (
     const checkToken: boolean = jwtUtils.validate(typeToken);
 
     if (!checkToken) {
-      throw new HttpError(
+      throw new CustomError(
         StatusCodes.UNAUTHORIZED,
         ReasonPhrases.UNAUTHORIZED,
         message.errors.TOKEN_NOT_VALID,

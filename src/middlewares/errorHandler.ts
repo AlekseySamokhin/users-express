@@ -1,26 +1,33 @@
+/* eslint-disable no-console */
 import { StatusCodes } from 'http-status-codes';
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
-import HttpError from '../utils/httpError';
+import { CustomError } from '../utils/CustomError';
 import config from '../config';
 
-import type IHttpError from '../interfaces/resError';
+const {
+  server: { name, error },
+} = config;
 
-const { name, error } = config.server;
+interface ICustomErrorType {
+  code: number;
+  name: string;
+  message: string;
+}
 
-const errorHandler = (err: Error, req: Request, res: Response) => {
-  const errObject = {} as IHttpError;
+const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction): void => {
+  const customError = {} as ICustomErrorType;
 
-  if (err instanceof HttpError) {
-    errObject.code = err.code;
-    errObject.name = err.name;
-    errObject.message = err.message;
+  if (err instanceof CustomError) {
+    customError.code = err.code;
+    customError.name = err.name;
+    customError.message = err.message;
   }
 
-  res.status(errObject.code || StatusCodes.INTERNAL_SERVER_ERROR).json({
-    name: errObject.name || name,
-    message: errObject.message || error,
+  res.status(customError.code || StatusCodes.INTERNAL_SERVER_ERROR).json({
+    name: customError.name || name,
+    message: customError.message || error,
   });
 };
 
-export default errorHandler;
+export { errorHandler };
