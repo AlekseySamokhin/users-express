@@ -9,23 +9,21 @@ const {
   server: { name, error },
 } = config;
 
-interface ICustomErrorType {
+interface ICustomErrorPayloadType {
   code: number;
-  name: string;
   message: string;
 }
 
 const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction): void => {
-  const customError = {} as ICustomErrorType;
+  const customError = {} as ICustomErrorPayloadType;
 
   if (err instanceof CustomError) {
-    customError.code = err.code;
-    customError.name = err.name;
-    customError.message = err.message;
+    customError.code = err.payload.code;
+    customError.message = err.payload.message;
   }
 
   res.status(customError.code || StatusCodes.INTERNAL_SERVER_ERROR).json({
-    name: customError.name || name,
+    name: customError.code || name,
     message: customError.message || error,
   });
 };

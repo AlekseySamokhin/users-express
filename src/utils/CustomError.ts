@@ -1,15 +1,14 @@
+interface ICustomErrorPayloadType {
+  code: number;
+  message: string;
+}
+
 class CustomError extends Error {
-  public code: number;
+  public payload: ICustomErrorPayloadType;
 
-  public message: string;
-
-  public name: string;
-
-  constructor(code: number, message: string, name: string) {
+  constructor(payload: ICustomErrorPayloadType) {
     super();
-    this.code = code;
-    this.message = message;
-    this.name = name;
+    this.payload = payload;
   }
 }
 

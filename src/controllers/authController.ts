@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
-import { StatusCodes, ReasonPhrases } from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 
 import User from '../db/entities/User';
 import dbUsers from '../db';
-import { passUtils, jwtUtils, message } from '../utils';
+import { passUtils, jwtUtils } from '../utils';
 import { CustomError } from '../utils/CustomError';
 import type { IDataUserType } from '../interfaces/user';
 
@@ -19,11 +19,10 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
     const existUser = await dbUsers.findOneBy({ email });
 
     if (existUser) {
-      throw new CustomError(
-        StatusCodes.FORBIDDEN,
-        ReasonPhrases.FORBIDDEN,
-        message.errors.EMAIL_NOT_EXIST,
-      );
+      throw new CustomError({
+        code: StatusCodes.NOT_FOUND,
+        message: 'User is not found!',
+      });
     }
 
     newUser.email = email.trim().toLowerCase();
@@ -52,21 +51,19 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
       .getOne();
 
     if (!existUser) {
-      throw new CustomError(
-        StatusCodes.NOT_FOUND,
-        ReasonPhrases.NOT_FOUND,
-        message.errors.USERS_NOT_FOUND,
-      );
+      throw new CustomError({
+        code: StatusCodes.NOT_FOUND,
+        message: 'User is not found!',
+      });
     }
 
     const doPasswordsMatch = passUtils.compare(password, existUser.password);
 
     if (!doPasswordsMatch) {
-      throw new CustomError(
-        StatusCodes.NOT_FOUND,
-        ReasonPhrases.NOT_FOUND,
-        message.errors.USERS_NOT_FOUND,
-      );
+      throw new CustomError({
+        code: StatusCodes.NOT_FOUND,
+        message: 'User is not found!',
+      });
     }
 
     const accessToken = jwtUtils.generate(existUser.id);
@@ -79,15 +76,18 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
+const getCurrentUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     console.log(1);
     if (req.headers.authorization) {
-      throw new CustomError(
-        StatusCodes.NOT_FOUND,
-        ReasonPhrases.NOT_FOUND,
-        message.errors.USERS_NOT_FOUND,
-      );
+      throw new CustomError({
+        code: StatusCodes.FORBIDDEN,
+        message: 'User is not authorized!',
+      });
     }
 
     const token: string = req.headers.authorization.split(' ')[1];

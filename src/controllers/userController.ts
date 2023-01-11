@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { StatusCodes, ReasonPhrases } from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 
 import dbUsers from '../db';
 
@@ -26,11 +26,10 @@ const getUser = async (req: Request, res: Response, next: NextFunction) => {
     const user = await dbUsers.findOneBy({ id });
 
     if (!user) {
-      throw new CustomError(
-        StatusCodes.NOT_FOUND,
-        ReasonPhrases.NOT_FOUND,
-        message.errors.USERS_NOT_FOUND,
-      );
+      throw new CustomError({
+        code: StatusCodes.UNAUTHORIZED,
+        message: 'User is not found!',
+      });
     }
 
     res.status(StatusCodes.OK).json({ user });
@@ -60,11 +59,10 @@ const removeUser = async (req: Request, res: Response, next: NextFunction) => {
     const user = await dbUsers.findOneBy({ id });
 
     if (!user) {
-      throw new CustomError(
-        StatusCodes.NOT_FOUND,
-        ReasonPhrases.NOT_FOUND,
-        message.errors.USERS_NOT_FOUND,
-      );
+      throw new CustomError({
+        code: StatusCodes.UNAUTHORIZED,
+        message: 'User is not found!',
+      });
     }
 
     await dbUsers.delete(id);
@@ -90,11 +88,10 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
       .getOne();
 
     if (!existUser) {
-      throw new CustomError(
-        StatusCodes.NOT_FOUND,
-        ReasonPhrases.NOT_FOUND,
-        message.errors.USERS_NOT_FOUND,
-      );
+      throw new CustomError({
+        code: StatusCodes.UNAUTHORIZED,
+        message: 'User is not found!',
+      });
     }
 
     if (newPassword) {
@@ -106,11 +103,10 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
       );
 
       if (!doPasswordsMatch) {
-        throw new CustomError(
-          StatusCodes.NOT_FOUND,
-          ReasonPhrases.NOT_FOUND,
-          message.errors.USERS_NOT_FOUND,
-        );
+        throw new CustomError({
+          code: StatusCodes.UNAUTHORIZED,
+          message: 'User is not found!',
+        });
       }
 
       newPassword = hashedPassword;

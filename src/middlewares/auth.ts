@@ -1,9 +1,9 @@
-import { StatusCodes, ReasonPhrases } from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import type { Handler, NextFunction, Response } from 'express';
 
 import dbUsers from '../db';
 
-import { message, jwtUtils } from '../utils';
+import { jwtUtils } from '../utils';
 
 import { CustomError } from '../utils/CustomError';
 
@@ -20,21 +20,19 @@ const checkAuth: Handler = async (
     const [typeToken, foundToken] = authHeader;
 
     if (!foundToken) {
-      throw new CustomError(
-        StatusCodes.UNAUTHORIZED,
-        ReasonPhrases.UNAUTHORIZED,
-        message.errors.USER_NOT_AUTH,
-      );
+      throw new CustomError({
+        code: StatusCodes.UNAUTHORIZED,
+        message: 'User is not authorized!',
+      });
     }
 
     const checkToken: boolean = jwtUtils.validate(typeToken);
 
     if (!checkToken) {
-      throw new CustomError(
-        StatusCodes.UNAUTHORIZED,
-        ReasonPhrases.UNAUTHORIZED,
-        message.errors.TOKEN_NOT_VALID,
-      );
+      throw new CustomError({
+        code: StatusCodes.UNAUTHORIZED,
+        message: 'Token is not valid!',
+      });
     }
 
     const { id } = jwtUtils.parse(foundToken);
