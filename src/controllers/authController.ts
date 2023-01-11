@@ -83,7 +83,7 @@ const getCurrentUser = async (
 ) => {
   try {
     console.log(1);
-    if (req.headers.authorization) {
+    if (!req.headers.authorization) {
       throw new CustomError({
         code: StatusCodes.FORBIDDEN,
         message: 'User is not authorized!',
