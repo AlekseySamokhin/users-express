@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
@@ -73,9 +74,24 @@ const removeUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const updateInfoUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { fullName, email } = req.body;
+
+    console.log(fullName, email);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { fullName: newFullName, email: newEmail } = req.body as IDataUserType;
+    const { fullName: newFullName, email: newEmail } =
+      req.body as IDataUserType;
 
     let newPassword = req.body.password;
 
@@ -134,6 +150,8 @@ const userController = {
   removeUsers,
   removeUser,
   updateUser,
+
+  updateInfoUser,
 };
 
 export default userController;

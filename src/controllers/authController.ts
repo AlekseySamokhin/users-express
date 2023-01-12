@@ -4,24 +4,29 @@ import { StatusCodes } from 'http-status-codes';
 
 import User from '../db/entities/User';
 import dbUsers from '../db';
+
 import { passUtils, jwtUtils } from '../utils';
+
 import { CustomError } from '../utils/CustomError';
+
 import type { IDataUserType } from '../interfaces/user';
 
 const signUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log(req.body);
     const { email, password } = req.body as IDataUserType;
 
     const newUser = new User();
 
     newUser.fullName = '';
+    newUser.avatar = '';
 
     const existUser = await dbUsers.findOneBy({ email });
 
     if (existUser) {
       throw new CustomError({
-        code: StatusCodes.NOT_FOUND,
-        message: 'User is not found!',
+        code: StatusCodes.FORBIDDEN,
+        message: 'User with this email address exists!',
       });
     }
 
@@ -41,6 +46,7 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const signIn = async (req: Request, res: Response, next: NextFunction) => {
+  console.log(1);
   try {
     const { email, password } = req.body as IDataUserType;
 
@@ -53,7 +59,7 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
     if (!existUser) {
       throw new CustomError({
         code: StatusCodes.NOT_FOUND,
-        message: 'User is not found!',
+        message: 'User with this email address does not exists!',
       });
     }
 
@@ -62,7 +68,7 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
     if (!doPasswordsMatch) {
       throw new CustomError({
         code: StatusCodes.NOT_FOUND,
-        message: 'User is not found!',
+        message: 'Password or email is not correct!',
       });
     }
 
@@ -76,17 +82,12 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getCurrentUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log(1);
     if (!req.headers.authorization) {
       throw new CustomError({
-        code: StatusCodes.FORBIDDEN,
-        message: 'User is not authorized!',
+        code: StatusCodes.UNAUTHORIZED,
+        message: 'User was not authorized!',
       });
     }
 
@@ -97,8 +98,8 @@ const getCurrentUser = async (
     const currentUser = await dbUsers.findOne({ where: { id } });
 
     res.status(StatusCodes.OK).json(currentUser);
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 

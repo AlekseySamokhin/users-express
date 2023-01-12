@@ -15,7 +15,7 @@ interface ICustomErrorPayloadType {
 }
 
 const errorHandler = (err: Error, req: Request, res: Response, _next: NextFunction): void => {
-  console.log(2);
+  console.log('errorHandler');
   let customError = {} as ICustomErrorPayloadType;
 
   if (err instanceof CustomError) {
