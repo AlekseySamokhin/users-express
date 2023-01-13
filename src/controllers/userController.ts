@@ -4,9 +4,9 @@ import { StatusCodes } from 'http-status-codes';
 
 import dbUsers from '../db';
 
-import type { IDataUserType } from '../interfaces/user';
+import type { ITypesDataUser } from '../interfaces/user';
 
-import { passUtils, message } from '../utils';
+import { passUtils, message, jwtUtils } from '../utils';
 
 import { CustomError } from '../utils/CustomError';
 
@@ -80,9 +80,26 @@ const updateInfoUser = async (
   next: NextFunction,
 ) => {
   try {
-    const { fullName, email } = req.body;
+    const { fullName, email } = req.body as ITypesDataUser;
 
-    console.log(fullName, email);
+    const token: string = req.headers.authorization.split(' ')[1];
+
+    const { id } = jwtUtils.parse(token);
+
+    const existUser = await dbUsers.findOne({ where: { id } });
+
+    const updatedInfoUser: { fullName: string; email: string } = {
+      fullName: fullName || existUser.fullName,
+      email: email || existUser.email,
+    };
+
+    dbUsers.merge(existUser, updatedInfoUser);
+
+    await dbUsers.save(existUser);
+
+    console.log(existUser);
+
+    res.status(StatusCodes.OK).json(existUser);
   } catch (err) {
     next(err);
   }
@@ -91,7 +108,7 @@ const updateInfoUser = async (
 const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { fullName: newFullName, email: newEmail } =
-      req.body as IDataUserType;
+      req.body as ITypesDataUser;
 
     let newPassword = req.body.password;
 

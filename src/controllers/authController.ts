@@ -9,12 +9,12 @@ import { passUtils, jwtUtils } from '../utils';
 
 import { CustomError } from '../utils/CustomError';
 
-import type { IDataUserType } from '../interfaces/user';
+import type { ITypesDataUser } from '../interfaces/user';
 
 const signUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
     console.log(req.body);
-    const { email, password } = req.body as IDataUserType;
+    const { email, password } = req.body as ITypesDataUser;
 
     const newUser = new User();
 
@@ -48,7 +48,7 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
 const signIn = async (req: Request, res: Response, next: NextFunction) => {
   console.log(1);
   try {
-    const { email, password } = req.body as IDataUserType;
+    const { email, password } = req.body as ITypesDataUser;
 
     const existUser = await dbUsers
       .createQueryBuilder('user')
