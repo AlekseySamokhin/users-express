@@ -1,8 +1,8 @@
 interface ITypesDataUser {
-  id: string;
+  id?: string;
   fullName?: string;
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
 }
 
 export { ITypesDataUser };

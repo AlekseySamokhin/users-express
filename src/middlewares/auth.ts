@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { StatusCodes } from 'http-status-codes';
 import type { Handler, NextFunction, Response } from 'express';
 
@@ -15,6 +16,7 @@ const checkAuth: Handler = async (
   next: NextFunction,
 ) => {
   try {
+    console.log(1);
     const authHeader = req.headers.authorization.split(' ');
 
     const [typeToken, foundToken] = authHeader;

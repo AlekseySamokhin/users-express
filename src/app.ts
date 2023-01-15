@@ -13,13 +13,21 @@ const {
 
 const app = express();
 
-app.use(express.json());
-
 const corsOptions = {
   origin: url,
+  credentials: true,
+  optionSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
+
+app.use(express.json());
+
+// const corsOptions = {
+//  origin: url,
+// };
+
+app.use('/static', express.static(`${__dirname}/static`));
 
 app.use(express.urlencoded({ extended: true }));
 

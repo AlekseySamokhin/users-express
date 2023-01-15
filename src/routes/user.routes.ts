@@ -10,6 +10,8 @@ userRouter.patch('/user/:id', userController.updateUser);
 userRouter.delete('/users', userController.removeUsers);
 userRouter.delete('/user/:id', userController.removeUser);
 
+userRouter.patch('password', userController.updatePassUser);
 userRouter.patch('/info', userController.updateInfoUser);
+userRouter.patch('/avatar', userController.uploadAvatar);
 
 export default userRouter;

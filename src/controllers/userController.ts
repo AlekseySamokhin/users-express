@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
+//  import fs from 'fs';
 import { StatusCodes } from 'http-status-codes';
 
 import dbUsers from '../db';
@@ -105,6 +106,75 @@ const updateInfoUser = async (
   }
 };
 
+const updatePassUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let { password } = req.body as ITypesDataUser;
+    console.log(password);
+    const token: string = req.headers.authorization.split(' ')[1];
+
+    const { id } = jwtUtils.parse(token);
+
+    console.log(id);
+
+    const existUser = await dbUsers
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.id = :id', { id })
+      .getOne();
+
+    const hashedPassword = passUtils.hash(password);
+
+    // const doPasswordsMatch = passUtils.compare(
+    // password,
+    //  existUser.password,
+    // );
+
+    // if (doPasswordsMatch) {
+    password = hashedPassword;
+    // }
+    const updatedUser = {
+      password: password || existUser.password,
+    };
+
+    dbUsers.merge(existUser, updatedUser);
+
+    await dbUsers.save(existUser);
+
+    res.status(StatusCodes.OK).json({ message: message.success.USER_UPDATE });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const uploadAvatar = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    console.log(1);
+    // const path = `./static/${Date.now()}.png` as string;
+    // console.log(path);
+    // const base64Data = imageData.replace(/^data:([A-Za-z-+/]+);base64,/, '');
+
+    // fs.writeFileSync(path, base64Data, { encoding: 'base64' });
+    // console.log(2);
+    // return res.send(path);
+
+    // const file = req.files.file;
+
+    // const token: string = req.headers.authorization.split(' ')[1];
+
+    // const { id } = jwtUtils.parse(token);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { fullName: newFullName, email: newEmail } =
@@ -168,7 +238,9 @@ const userController = {
   removeUser,
   updateUser,
 
+  updatePassUser,
   updateInfoUser,
+  uploadAvatar,
 };
 
 export default userController;
