@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import dotenv from 'dotenv';
 import fs from 'fs';
 
@@ -24,10 +25,12 @@ const config = {
     endpoint: mainConfig.SERVER_ENDPOINTS_PREFIX,
     error: mainConfig.SERVER_INTERNAL_ERROR_MESSAGE,
     name: mainConfig.SERVER_INTERNAL_ERROR_MESSAGE,
+    serverUrl: mainConfig.CURRENT_URL,
   },
 
   client: {
     url: mainConfig.CLIENT_APP_URL,
+    rootPath: mainConfig.CLIENT_PATH_TO_FOLDER_PROJECT,
   },
 
   jwt: {

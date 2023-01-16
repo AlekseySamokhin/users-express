@@ -1,7 +1,11 @@
 /* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
-//  import fs from 'fs';
+import fs from 'fs';
+import { v4 as uuid } from 'uuid';
 import { StatusCodes } from 'http-status-codes';
+// import path from 'path';
+
+import config from '../config';
 
 import dbUsers from '../db';
 
@@ -10,6 +14,11 @@ import type { ITypesDataUser } from '../interfaces/user';
 import { passUtils, message, jwtUtils } from '../utils';
 
 import { CustomError } from '../utils/CustomError';
+
+const {
+  server: { serverUrl },
+  client: { rootPath },
+} = config;
 
 const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -113,7 +122,7 @@ const updatePassUser = async (
 ) => {
   try {
     let { password } = req.body as ITypesDataUser;
-    console.log(password);
+
     const token: string = req.headers.authorization.split(' ')[1];
 
     const { id } = jwtUtils.parse(token);
@@ -156,20 +165,42 @@ const uploadAvatar = async (
   next: NextFunction,
 ) => {
   try {
-    console.log(1);
-    // const path = `./static/${Date.now()}.png` as string;
-    // console.log(path);
-    // const base64Data = imageData.replace(/^data:([A-Za-z-+/]+);base64,/, '');
+    const imageURL = req.body.imageURL;
 
-    // fs.writeFileSync(path, base64Data, { encoding: 'base64' });
-    // console.log(2);
-    // return res.send(path);
+    const token: string = req.headers.authorization.split(' ')[1];
+    const id = jwtUtils.parse(token).id;
+    const existUser = await dbUsers.findOne({ where: { id } });
 
-    // const file = req.files.file;
+    const base64Data = imageURL.split('base64,')[1];
+    const typeImage = imageURL.split('base64,')[0].split('/')[1].slice(0, -1);
 
-    // const token: string = req.headers.authorization.split(' ')[1];
+    const generatedRandomString = uuid().substring(0, 18);
 
-    // const { id } = jwtUtils.parse(token);
+    const nameFileImage = `avatar_${generatedRandomString}.${typeImage}`;
+    const pathToImage = `static/avatars/${nameFileImage}`;
+
+    if (existUser.avatar) {
+      const nameFileExistAvatarUser = existUser.avatar.slice(30);
+
+      fs.unlink(`${rootPath}/static/avatars/${nameFileExistAvatarUser}`, (err) => {
+        console.log(err);
+      });
+    }
+
+    fs.writeFile(
+      `${rootPath}/${pathToImage}`,
+      base64Data,
+      { encoding: 'base64' },
+      (err) => {
+        console.log(err);
+      },
+    );
+
+    existUser.avatar = `${serverUrl}/avatars/${nameFileImage}`;
+
+    await dbUsers.save(existUser);
+
+    res.status(StatusCodes.OK).json(existUser);
   } catch (err) {
     next(err);
   }

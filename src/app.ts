@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
-
-import routes from './routes';
-import config from './config';
+import path from 'path';
 
 import { errorHandler } from './middlewares/errorHandler';
+import routes from './routes';
+import config from './config';
 
 const {
   server: { endpoint },
@@ -19,17 +19,12 @@ const corsOptions = {
   optionSuccessStatus: 200,
 };
 
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
 app.use(cors(corsOptions));
 
-app.use(express.json());
-
-// const corsOptions = {
-//  origin: url,
-// };
-
-app.use('/static', express.static(`${__dirname}/static`));
-
-app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, '..', 'static')));
 
 app.use(endpoint, routes);
 
