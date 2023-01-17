@@ -16,7 +16,6 @@ const checkAuth: Handler = async (
   next: NextFunction,
 ) => {
   try {
-    console.log(1);
     const authHeader = req.headers.authorization.split(' ');
 
     const [typeToken, foundToken] = authHeader;

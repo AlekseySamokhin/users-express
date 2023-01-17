@@ -46,7 +46,7 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const signIn = async (req: Request, res: Response, next: NextFunction) => {
-  console.log(1);
+  console.log(1111);
   try {
     const { email, password } = req.body as ITypesDataUser;
 
