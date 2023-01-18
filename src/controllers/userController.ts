@@ -153,12 +153,12 @@ const updateInfoUser = async (
 
     const existUser = await dbUsers.findOne({ where: { id } });
 
-    if (existUser.email === email.toLowerCase().trim()) {
-      throw new CustomError({
-        code: StatusCodes.UNAUTHORIZED,
-        message: 'This email address already exists!',
-      });
-    }
+    // if (existUser.email === email.toLowerCase().trim()) {
+    //   throw new CustomError({
+    //     code: StatusCodes.UNAUTHORIZED,
+    //     message: 'This email address already exists!',
+    //   });
+    // }
 
     const updatedInfoUser: { fullName: string; email: string } = {
       fullName: fullName || existUser.fullName,
