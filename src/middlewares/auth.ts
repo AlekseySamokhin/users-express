@@ -2,7 +2,7 @@
 import { StatusCodes } from 'http-status-codes';
 import type { Handler, NextFunction, Response } from 'express';
 
-import dbUsers from '../db';
+import { dbUsers } from '../db';
 
 import { jwtUtils } from '../utils';
 

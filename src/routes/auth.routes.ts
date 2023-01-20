@@ -11,4 +11,4 @@ authRouter.post('/signup', validate(singUpSchema), authController.signUp);
 authRouter.post('/signin', validate(logInSchema), authController.signIn);
 authRouter.get('/me', authController.getCurrentUser);
 
-export default authRouter;
+export { authRouter };

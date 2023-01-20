@@ -14,4 +14,4 @@ userRouter.patch('/password', userController.updatePassUser);
 userRouter.patch('/info', userController.updateInfoUser);
 userRouter.patch('/avatar', userController.uploadAvatar);
 
-export default userRouter;
+export { userRouter };

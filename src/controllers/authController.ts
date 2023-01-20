@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import User from '../db/entities/User';
-import dbUsers from '../db';
+import { dbUsers } from '../db';
 
 import { passUtils, jwtUtils } from '../utils';
 
@@ -105,4 +105,4 @@ const getCurrentUser = async (req: Request, res: Response, next: NextFunction) =
 
 const authController = { signUp, signIn, getCurrentUser };
 
-export default authController;
+export { authController };

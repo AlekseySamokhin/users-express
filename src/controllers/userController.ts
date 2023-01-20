@@ -7,7 +7,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import config from '../config';
 
-import dbUsers from '../db';
+import { dbUsers } from '../db';
 
 import type { ITypesDataUser } from '../interfaces/user';
 import type { IAuthRequestType } from '../interfaces/authRequest';
@@ -274,4 +274,4 @@ const userController = {
   uploadAvatar,
 };
 
-export default userController;
+export { userController };
