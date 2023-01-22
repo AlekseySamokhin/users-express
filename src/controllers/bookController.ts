@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
@@ -13,7 +14,23 @@ const getAllBooks = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const changeBookRating = async (req: Request, res: Response, next: NextFunction) => {
+const getOneBook = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.body.id as number;
+
+    const book = await dbBooks.findOne({ where: { id } });
+
+    res.status(StatusCodes.OK).json(book);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const changeBookRating = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const allBooks = await dbBooks.find();
 
@@ -25,6 +42,7 @@ const changeBookRating = async (req: Request, res: Response, next: NextFunction)
 
 const bookController = {
   getAllBooks,
+  getOneBook,
   changeBookRating,
 };
 
