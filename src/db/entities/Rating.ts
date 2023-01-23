@@ -6,7 +6,7 @@ class Rating {
   id: number;
 
   @Column({ type: 'varchar', nullable: false })
-  fullName: string;
+  name: string;
 }
 
 export { Rating };
