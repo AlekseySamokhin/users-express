@@ -26,24 +26,24 @@ const getOneBook = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const changeBookRating = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const allBooks = await dbBooks.find();
+// const changeBookRating = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction,
+// ) => {
+//   try {
+//     const allBooks = await dbBooks.find();
 
-    res.status(StatusCodes.OK).json(allBooks);
-  } catch (err) {
-    next(err);
-  }
-};
+//     res.status(StatusCodes.OK).json(allBooks);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 const bookController = {
   getAllBooks,
   getOneBook,
-  changeBookRating,
+  // changeBookRating,
 };
 
 export { bookController };

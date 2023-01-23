@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity()
-export class Book {
+@Entity('book')
+class Book {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -12,16 +12,16 @@ export class Book {
   author: string;
 
   @Column({ type: 'varchar', nullable: false })
-  price: string;
+  price: number;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'text', nullable: true })
   description: string;
 
   @Column({ type: 'varchar', nullable: true })
   rate: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
   poster: string;
 }
 
-export default Book;
+export { Book };
