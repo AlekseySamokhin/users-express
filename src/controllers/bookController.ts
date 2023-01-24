@@ -16,7 +16,7 @@ const getAllBooks = async (req: Request, res: Response, next: NextFunction) => {
 
 const getOneBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = req.body.id as number;
+    const id = Number(req.query.id);
 
     const book = await dbBooks.findOne({ where: { id } });
 
