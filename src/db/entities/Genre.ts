@@ -1,12 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
 
-@Entity('genre')
+import { Book } from './Book';
+
+@Entity()
 class Genre {
   @PrimaryGeneratedColumn()
-  id: number;
+  genreId: number;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', unique: true, nullable: false })
   name: string;
+
+  @ManyToMany(() => Book, (book) => book.bookId)
+  books: Book[];
 }
 
 export { Genre };

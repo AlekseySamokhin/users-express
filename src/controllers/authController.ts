@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
@@ -13,7 +12,6 @@ import type { ITypesDataUser } from '../interfaces/user';
 
 const signUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log(req.body);
     const { email, password } = req.body as ITypesDataUser;
 
     const newUser = new User();
@@ -46,7 +44,6 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const signIn = async (req: Request, res: Response, next: NextFunction) => {
-  console.log(1111);
   try {
     const { email, password } = req.body as ITypesDataUser;
 
@@ -82,7 +79,11 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
+const getCurrentUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     if (!req.headers.authorization) {
       throw new CustomError({

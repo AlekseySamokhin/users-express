@@ -6,5 +6,6 @@ const bookRouter = express.Router();
 
 bookRouter.get('/all', bookController.getAllBooks);
 bookRouter.get('/one', bookController.getOneBook);
+bookRouter.get('/genres', bookController.getAllGenres);
 
 export { bookRouter };
