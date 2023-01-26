@@ -22,11 +22,17 @@ class Book {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'real', nullable: false })
   price: number;
 
   @Column({ type: 'varchar', nullable: true })
   poster: string;
+
+  @Column({ type: 'boolean', nullable: false })
+  isNew: boolean;
+
+  @Column({ type: 'boolean', nullable: false })
+  isBestseller: boolean;
 
   @ManyToMany(() => Genre, (genre) => genre.genreId)
   @JoinTable()

@@ -1,14 +1,16 @@
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-// import { loadGenres, loadBooks } from '../utils/data';
+// import { loadGenres } from '../../loadBook/datas';
+// import { loadBooks } from '../../loadBook/datas';
 
 import { dbBooks, dbGenres } from '../db';
 
 const getAllBooks = async (req: Request, res: Response, next: NextFunction) => {
-  // loadBooks();
-  // loadGenres();
   try {
+    // loadGenres();
+    // loadBooks();
+
     const allBooks = await dbBooks.find();
 
     res.status(StatusCodes.OK).json(allBooks);
