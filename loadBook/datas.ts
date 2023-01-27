@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-await-in-loop */
 import { dbBooks, dbGenres } from '../src/db';
 import { Book, Genre } from '../src/db/entities';
@@ -50,7 +51,7 @@ const arrBooks = [
     author: 'Oscar Wilde',
     description:
       'Dorian Gray is the subject of a full-length portrait in oil by Basil Hallward, an artist impressed and infatuated by Dorians beauty; he believes that Dorians beauty is responsible for the new mood in his art as a painter. Through Basil, Dorian meets Lord Henry Wotton, and he soon is enthralled by the aristocrats hedonistic world view: that beauty and sensual fulfilment are the only things worth pursuing in life.Newly understanding that his beauty will fade, Dorian expresses the desire to sell his soul, to ensure that the picture, rather than he, will age and fade. The wish is granted, and Dorian pursues a libertine life of varied amoral experiences while staying young and beautiful; all the while, his portrait ages and records every sin',
-    price: 5.50,
+    price: 5.5,
     poster: 'http://localhost:4000/books/unsplash_1i-P178kxHQ.png',
     genres: ['Travel books', 'Romace'],
     isBestseller: false,
@@ -116,7 +117,7 @@ const arrBooks = [
     author: 'Marianne Flitz',
     description:
       'The Weight of Things is the first book, and the first translated book, and possibly the only translatable book by Austrian writer Marianne Fritz (1948–2007). For after winning acclaim with this novel—awarded the Robert Walser Prize in 1978—she embarked on a 10,000-page literary project called “The Fortress,” creating over her lifetime elaborate colorful diagrams and typescripts so complicated that her publisher had to print them straight from her original documents. A project as brilliant as it is ambitious and as bizarre as it is brilliant, it earned her cult status, comparisons to James Joyce no less than Henry Darger, and admirers including Elfriede Jelinek and W. G. Sebald.',
-    price: 2.40,
+    price: 2.4,
     poster: 'http://localhost:4000/books/unsplash_aZ_MmSmAcjgasd.png',
     genres: ['Encyclopedia'],
     isBestseller: false,
@@ -138,7 +139,7 @@ const arrBooks = [
     author: 'Herman Melville',
     description:
       'The book is divided into four chapters, and each chapter serves a different purpose. Deals with a different pain. Heals a different heartache. milk and honey takes readers through a journey of the most bitter moments in life and finds sweetness in them because there is sweetness everywhere if you are just willing to look.',
-    price: 20.00,
+    price: 20.0,
     poster: 'http://localhost:4000/books/unsplash_CXYPfveiuisadh.png',
     genres: ['Science-fiction'],
     isBestseller: false,
@@ -179,6 +180,8 @@ const loadBooks = async () => {
       if (genreItem) {
         arrGenres.push(genreItem);
       }
+
+      console.log('arrGenres', arrGenres);
     }
 
     book.genres = arrGenres;

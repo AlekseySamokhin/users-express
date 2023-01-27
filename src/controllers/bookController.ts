@@ -1,15 +1,41 @@
+/* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 // import { loadGenres } from '../../loadBook/datas';
-// import { loadBooks } from '../../loadBook/datas';
+import { loadBooks } from '../../loadBook/datas';
 
 import { dbBooks, dbGenres } from '../db';
 
-const getAllBooks = async (req: Request, res: Response, next: NextFunction) => {
+interface ITypesCutromRequest extends Request {
+  query: {
+    genres: string;
+  };
+}
+
+const getAllBooks = async (req: ITypesCutromRequest, res: Response, next: NextFunction) => {
+  // loadGenres();
+  loadBooks();
+
   try {
-    // loadGenres();
-    // loadBooks();
+    const { genres } = req.query;
+    const genresArr = genres.split(',');
+    console.log(genresArr);
+
+    const books = dbBooks.createQueryBuilder('books');
+
+    if (genres) {
+      books.innerJoinAndSelect(
+        'books.genres',
+        'genre',
+        'genre.name IN (:...genresArr)',
+        {
+          genresArr,
+        },
+      );
+    }
+
+    console.log(await books.getMany());
 
     const allBooks = await dbBooks.find();
 
