@@ -172,9 +172,9 @@ const loadBooks = async () => {
 
     const arrGenres: Genre[] = [];
 
-    for (let i = 0; i < arrBooks[i].genres.length; i++) {
+    for (let j = 0; j < arrBooks[i].genres.length; j++) {
       const genreItem = await dbGenres.findOneBy({
-        name: arrBooks[i].genres[i],
+        name: arrBooks[i].genres[j],
       });
 
       if (genreItem) {

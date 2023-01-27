@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 // import { loadGenres } from '../../loadBook/datas';
-import { loadBooks } from '../../loadBook/datas';
+// import { loadBooks } from '../../loadBook/datas';
 
 import { dbBooks, dbGenres } from '../db';
 
@@ -15,31 +15,36 @@ interface ITypesCutromRequest extends Request {
 
 const getAllBooks = async (req: ITypesCutromRequest, res: Response, next: NextFunction) => {
   // loadGenres();
-  loadBooks();
+  // loadBooks();
 
   try {
     const { genres } = req.query;
-    const genresArr = genres.split(',');
-    console.log(genresArr);
-
-    const books = dbBooks.createQueryBuilder('books');
-
     if (genres) {
-      books.innerJoinAndSelect(
-        'books.genres',
-        'genre',
-        'genre.name IN (:...genresArr)',
-        {
-          genresArr,
-        },
-      );
+      const genresArr = genres.split(',');
+
+      console.log(genresArr);
+
+      const books = dbBooks.createQueryBuilder('books');
+
+      if (genres) {
+        books.innerJoinAndSelect(
+          'books.genres',
+          'genre',
+          'genre.name IN (:...genresArr)',
+          {
+            genresArr,
+          },
+        );
+      }
+
+      const filteredBooksByGenres = await books.getMany();
+
+      res.status(StatusCodes.OK).json(filteredBooksByGenres);
+    } else {
+      const allBooks = await dbBooks.find();
+
+      res.status(StatusCodes.OK).json(allBooks);
     }
-
-    console.log(await books.getMany());
-
-    const allBooks = await dbBooks.find();
-
-    res.status(StatusCodes.OK).json(allBooks);
   } catch (err) {
     next(err);
   }

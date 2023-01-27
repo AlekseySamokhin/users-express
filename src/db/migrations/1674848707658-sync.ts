@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class sync1674833287711 implements MigrationInterface {
-    name = 'sync1674833287711'
+export class sync1674848707658 implements MigrationInterface {
+    name = 'sync1674848707658'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -26,13 +26,6 @@ export class sync1674833287711 implements MigrationInterface {
             )
         `);
         await queryRunner.query(`
-            CREATE TABLE "rating" (
-                "id" SERIAL NOT NULL,
-                "name" character varying NOT NULL,
-                CONSTRAINT "PK_ecda8ad32645327e4765b43649e" PRIMARY KEY ("id")
-            )
-        `);
-        await queryRunner.query(`
             CREATE TABLE "user" (
                 "id" SERIAL NOT NULL,
                 "fullName" character varying,
@@ -41,6 +34,13 @@ export class sync1674833287711 implements MigrationInterface {
                 "password" character varying NOT NULL,
                 CONSTRAINT "UQ_e12875dfb3b1d92d7d7c5377e22" UNIQUE ("email"),
                 CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id")
+            )
+        `);
+        await queryRunner.query(`
+            CREATE TABLE "rating" (
+                "id" SERIAL NOT NULL,
+                "name" character varying NOT NULL,
+                CONSTRAINT "PK_ecda8ad32645327e4765b43649e" PRIMARY KEY ("id")
             )
         `);
         await queryRunner.query(`
@@ -83,10 +83,10 @@ export class sync1674833287711 implements MigrationInterface {
             DROP TABLE "book_genres_genre"
         `);
         await queryRunner.query(`
-            DROP TABLE "user"
+            DROP TABLE "rating"
         `);
         await queryRunner.query(`
-            DROP TABLE "rating"
+            DROP TABLE "user"
         `);
         await queryRunner.query(`
             DROP TABLE "book"
