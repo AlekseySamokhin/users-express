@@ -12,7 +12,7 @@ import { dbUsers } from '../db';
 import type { ITypesDataUser } from '../interfaces/user';
 import type { IAuthRequestType } from '../interfaces/authRequest';
 
-import { passUtils, message } from '../utils';
+import { passUtils, messages } from '../utils';
 
 import { CustomError } from '../utils/CustomError';
 
@@ -58,7 +58,7 @@ const removeUsers = async (req: Request, res: Response, next: NextFunction) => {
       dbUsers.delete(user.id);
     });
 
-    res.status(StatusCodes.OK).json({ message: message.success.USERS_DELETE });
+    res.status(StatusCodes.OK).json({ message: messages.success.USERS_DELETE });
   } catch (err) {
     next(err);
   }
@@ -79,7 +79,7 @@ const removeUser = async (req: Request, res: Response, next: NextFunction) => {
 
     await dbUsers.delete(id);
 
-    res.status(StatusCodes.OK).json({ message: message.success.USER_DELETE });
+    res.status(StatusCodes.OK).json({ message: messages.success.USER_DELETE });
   } catch (err) {
     next(err);
   }
@@ -135,7 +135,7 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
 
     await dbUsers.save(existUser);
 
-    res.status(StatusCodes.OK).json({ message: message.success.USER_UPDATE });
+    res.status(StatusCodes.OK).json({ message: messages.success.USER_UPDATE });
   } catch (err) {
     next(err);
   }
@@ -209,7 +209,7 @@ const updatePassUser = async (
 
     await dbUsers.save(existUser);
 
-    res.status(StatusCodes.OK).json({ message: message.success.USER_UPDATE });
+    res.status(StatusCodes.OK).json({ message: messages.success.USER_UPDATE });
   } catch (err) {
     next(err);
   }

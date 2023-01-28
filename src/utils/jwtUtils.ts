@@ -30,4 +30,4 @@ const jwtUtils = {
   validate,
 };
 
-export default jwtUtils;
+export { jwtUtils };

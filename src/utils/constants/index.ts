@@ -3,4 +3,4 @@ import errors from './errors';
 
 const messages = { success, errors };
 
-export default messages;
+export { messages };

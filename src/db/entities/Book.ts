@@ -2,11 +2,14 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  AfterLoad,
   ManyToMany,
   JoinTable,
 } from 'typeorm';
 
 import { Genre } from './Genre';
+
+import { setUrl } from '../../utils/setUrl';
 
 @Entity()
 class Book {
@@ -33,6 +36,11 @@ class Book {
 
   @Column({ type: 'boolean', nullable: false })
   isBestseller: boolean;
+
+  @AfterLoad()
+  addURL(): void {
+    this.poster = setUrl.setURLBookPoster(this.poster);
+  }
 
   @ManyToMany(() => Genre, (genre) => genre.genreId)
   @JoinTable()

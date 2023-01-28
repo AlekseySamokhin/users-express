@@ -17,4 +17,4 @@ const passUtils = {
   compare,
 };
 
-export default passUtils;
+export { passUtils };
