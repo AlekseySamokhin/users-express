@@ -20,9 +20,9 @@ const getAllBooks = async (req: ITypesCutromRequest, res: Response, next: NextFu
   try {
     const { genres } = req.query;
     if (genres) {
-      const genresArr = genres.split(',');
+      const arrayGenres = genres.split(',');
 
-      console.log(genresArr);
+      console.log(arrayGenres);
 
       const books = dbBooks.createQueryBuilder('books');
 
@@ -30,9 +30,9 @@ const getAllBooks = async (req: ITypesCutromRequest, res: Response, next: NextFu
         books.innerJoinAndSelect(
           'books.genres',
           'genre',
-          'genre.name IN (:...genresArr)',
+          'genre.name IN (:...arrayGenres)',
           {
-            genresArr,
+            arrayGenres,
           },
         );
       }

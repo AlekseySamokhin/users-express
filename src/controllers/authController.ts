@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
@@ -9,6 +10,7 @@ import { passUtils, jwtUtils } from '../utils';
 import { CustomError } from '../utils/CustomError';
 
 import type { ITypesDataUser } from '../interfaces/user';
+import type { IAuthRequestType } from '../interfaces/authRequest';
 
 const signUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -80,7 +82,7 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getCurrentUser = async (
-  req: Request,
+  req: IAuthRequestType,
   res: Response,
   next: NextFunction,
 ) => {
