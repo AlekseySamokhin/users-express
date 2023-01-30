@@ -7,44 +7,84 @@ import { StatusCodes } from 'http-status-codes';
 
 import { dbBooks, dbGenres } from '../db';
 
-interface ITypesCutromRequest extends Request {
+interface ITypesCustomRequest extends Request {
   query: {
     genres: string;
+    minPrice: string;
+    maxPrice: string;
   };
 }
 
-const getAllBooks = async (req: ITypesCutromRequest, res: Response, next: NextFunction) => {
+const getAllBooks = async (
+  req: ITypesCustomRequest,
+  res: Response,
+  next: NextFunction,
+) => {
   // loadGenres();
   // loadBooks();
 
   try {
-    const { genres } = req.query;
+    // const { genres } = req.query;
+
+    // // if (maxPrice && minPrice) {
+    // //   const books = dbBooks.createQueryBuilder('books');
+
+    // //   books.where('books.price => :minPrice', { minPrice });
+    // //   books.where('books.price <= :maxPrice', { maxPrice });
+
+    // //   const filteredBooksByGenres = await books.getMany();
+
+    // //   res.status(StatusCodes.OK).json(filteredBooksByGenres);
+
+    // if (genres) {
+    //   const arrayGenres = genres.split(',');
+    //   const books = dbBooks.createQueryBuilder('books');
+    //   books.innerJoinAndSelect(
+    //     'books.genres',
+    //     'genre',
+    //     'genre.name IN (:...arrayGenres)',
+    //     {
+    //       arrayGenres,
+    //     },
+    //   );
+
+    //   const filteredBooksByGenres = await books.getMany();
+
+    //   res.status(StatusCodes.OK).json(filteredBooksByGenres);
+    // } else {
+    //   const allBooks = await dbBooks.find();
+
+    //   res.status(StatusCodes.OK).json(allBooks);
+    // }
+    const { genres, minPrice, maxPrice } = req.query;
+
+    const books = dbBooks.createQueryBuilder('books');
+
     if (genres) {
       const arrayGenres = genres.split(',');
 
-      console.log(arrayGenres);
-
-      const books = dbBooks.createQueryBuilder('books');
-
-      if (genres) {
-        books.innerJoinAndSelect(
-          'books.genres',
-          'genre',
-          'genre.name IN (:...arrayGenres)',
-          {
-            arrayGenres,
-          },
-        );
-      }
-
-      const filteredBooksByGenres = await books.getMany();
-
-      res.status(StatusCodes.OK).json(filteredBooksByGenres);
-    } else {
-      const allBooks = await dbBooks.find();
-
-      res.status(StatusCodes.OK).json(allBooks);
+      books.innerJoinAndSelect(
+        'books.genres',
+        'genre',
+        'genre.name IN (:...arrayGenres)',
+        {
+          arrayGenres,
+        },
+      );
     }
+
+    if (maxPrice && minPrice) {
+      if (maxPrice === minPrice) {
+        books.where('books.price = :minPrice', { minPrice });
+      } else {
+        books.where('books.price => :minPrice', { minPrice });
+        books.where('books.price <= :maxPrice', { maxPrice });
+      }
+    }
+
+    const filteredBooks = await books.getMany();
+
+    res.status(StatusCodes.OK).json(filteredBooks);
   } catch (err) {
     next(err);
   }
