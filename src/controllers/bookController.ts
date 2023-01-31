@@ -12,6 +12,7 @@ interface ITypesCustomRequest extends Request {
     genres: string;
     minPrice: string;
     maxPrice: string;
+    sort: string;
   };
 }
 
@@ -24,39 +25,7 @@ const getAllBooks = async (
   // loadBooks();
 
   try {
-    // const { genres } = req.query;
-
-    // // if (maxPrice && minPrice) {
-    // //   const books = dbBooks.createQueryBuilder('books');
-
-    // //   books.where('books.price => :minPrice', { minPrice });
-    // //   books.where('books.price <= :maxPrice', { maxPrice });
-
-    // //   const filteredBooksByGenres = await books.getMany();
-
-    // //   res.status(StatusCodes.OK).json(filteredBooksByGenres);
-
-    // if (genres) {
-    //   const arrayGenres = genres.split(',');
-    //   const books = dbBooks.createQueryBuilder('books');
-    //   books.innerJoinAndSelect(
-    //     'books.genres',
-    //     'genre',
-    //     'genre.name IN (:...arrayGenres)',
-    //     {
-    //       arrayGenres,
-    //     },
-    //   );
-
-    //   const filteredBooksByGenres = await books.getMany();
-
-    //   res.status(StatusCodes.OK).json(filteredBooksByGenres);
-    // } else {
-    //   const allBooks = await dbBooks.find();
-
-    //   res.status(StatusCodes.OK).json(allBooks);
-    // }
-    const { genres, minPrice, maxPrice } = req.query;
+    const { genres, minPrice, maxPrice, sort } = req.query;
 
     const books = dbBooks.createQueryBuilder('books');
 
@@ -79,6 +48,22 @@ const getAllBooks = async (
       } else {
         books.where('books.price => :minPrice', { minPrice });
         books.where('books.price <= :maxPrice', { maxPrice });
+      }
+    }
+
+    if (sort) {
+      if (sort === 'Price') {
+        books.orderBy('books.price', 'ASC');
+      } else if (sort === 'Name') {
+        books.orderBy('books.title', 'ASC');
+      } else if (sort === 'Author name') {
+        books.orderBy('books.author', 'ASC');
+      } else if (sort === 'Rating') {
+        books.orderBy('books.rating', 'ASC');
+      } else if (sort === 'Date of issue') {
+        books.orderBy('books.releaseDate', 'ASC');
+      } else {
+        return;
       }
     }
 

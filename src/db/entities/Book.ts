@@ -31,6 +31,12 @@ class Book {
   @Column({ type: 'varchar', nullable: true })
   poster: string;
 
+  @Column({ type: 'date', nullable: true })
+  releaseDate: Date;
+
+  @Column({ type: 'varchar', nullable: true })
+  rating: number;
+
   @Column({ type: 'boolean', nullable: false })
   isNew: boolean;
 
