@@ -2,9 +2,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-// import { loadGenres } from '../../loadBook/datas';
-// import { loadBooks } from '../../loadBook/datas';
-
 import { dbBooks, dbGenres } from '../db';
 
 interface ITypesCustomRequest extends Request {
@@ -13,6 +10,8 @@ interface ITypesCustomRequest extends Request {
     minPrice: string;
     maxPrice: string;
     sort: string;
+    page: string;
+    search: string;
   };
 }
 
@@ -21,11 +20,8 @@ const getAllBooks = async (
   res: Response,
   next: NextFunction,
 ) => {
-  // loadGenres();
-  // loadBooks();
-
   try {
-    const { genres, minPrice, maxPrice, sort } = req.query;
+    const { genres, minPrice, maxPrice, sort, page, search } = req.query;
 
     const books = dbBooks.createQueryBuilder('books');
 
@@ -36,25 +32,43 @@ const getAllBooks = async (
         'books.genres',
         'genre',
         'genre.name IN (:...arrayGenres)',
-        {
-          arrayGenres,
-        },
+        { arrayGenres },
       );
     }
 
-    if (maxPrice && minPrice) {
-      if (maxPrice === minPrice) {
-        books.where('books.price = :minPrice', { minPrice });
-      } else {
-        books.where('books.price => :minPrice', { minPrice });
-        books.where('books.price <= :maxPrice', { maxPrice });
-      }
+    if (minPrice && maxPrice) {
+      books.where('books.price BETWEEN :minPrice AND :maxPrice', {
+        minPrice,
+        maxPrice,
+      });
     }
 
+    // if (maxPrice) {
+    //   books.where('books.price <= :maxPrice', { maxPrice });
+    // }
+
+    // if (minPrice) {
+    //   books.where('books.price >= :minPrice', { minPrice });
+    // }
+
+    if (search) {
+      books.andWhere(
+        'books.title ILIKE :search OR books.author ILIKE :search',
+        { search: `%${search}%` },
+      );
+    }
+
+    // if (maxPrice && minPrice) {
+    //   if (maxPrice === minPrice) {
+    //     books.where('books.price = :minPrice', { minPrice });
+    //   } else {
+    //     books.where('books.price => :minPrice', { minPrice });
+    //     books.where('books.price <= :maxPrice', { maxPrice });
+    //   }
+    // }
+
     if (sort) {
-      if (sort === 'Price') {
-        books.orderBy('books.price', 'ASC');
-      } else if (sort === 'Name') {
+      if (sort === 'Name') {
         books.orderBy('books.title', 'ASC');
       } else if (sort === 'Author name') {
         books.orderBy('books.author', 'ASC');
@@ -63,13 +77,33 @@ const getAllBooks = async (
       } else if (sort === 'Date of issue') {
         books.orderBy('books.releaseDate', 'ASC');
       } else {
-        return;
+        books.orderBy('books.price', 'ASC');
       }
     }
 
-    const filteredBooks = await books.getMany();
+    const currentPage = Number(page) || 1;
+    const numberBooksOfPage = 8;
 
-    res.status(StatusCodes.OK).json(filteredBooks);
+    const [filteredArrayOfBooks, numberOfBooks] = await books
+      .take(numberBooksOfPage)
+      .skip(numberBooksOfPage * currentPage - numberBooksOfPage)
+      .getManyAndCount();
+
+    const pagesQty = Math.ceil(numberOfBooks / 8);
+
+    const serviceBook = {
+      pagesQty,
+      currentPage: currentPage === 0 ? currentPage + 1 : currentPage,
+      prevPage: currentPage - 1 < 0 ? 1 : currentPage - 1,
+      nextPage:
+        currentPage + 1 > pagesQty ? pagesQty : currentPage + 1,
+    };
+
+    // const filteredArrayOfBooks = await books.getMany();
+
+    res
+      .status(StatusCodes.OK)
+      .json({ books: filteredArrayOfBooks, info: serviceBook });
   } catch (err) {
     next(err);
   }

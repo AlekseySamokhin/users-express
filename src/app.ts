@@ -6,6 +6,8 @@ import { errorHandler } from './middlewares/errorHandler';
 import routes from './routes';
 import config from './config';
 
+// import { loadBooks, loadGenres } from '../loadBook/datas';
+
 const {
   server: { endpoint },
   client: { url },
@@ -29,5 +31,10 @@ app.use(express.static(path.join(__dirname, '..', 'static')));
 app.use(endpoint, routes);
 
 app.use(errorHandler);
+
+// setTimeout(() => {
+//  loadBooks();
+//  loadGenres();
+// }, 1000);
 
 export default app;
