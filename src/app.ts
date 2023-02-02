@@ -6,7 +6,9 @@ import { errorHandler } from './middlewares/errorHandler';
 import routes from './routes';
 import config from './config';
 
-// import { loadBooks, loadGenres } from '../loadBook/datas';
+import // loadBooks,
+// loadGenres,
+'../loadBook/datas';
 
 const {
   server: { endpoint },
@@ -32,9 +34,9 @@ app.use(endpoint, routes);
 
 app.use(errorHandler);
 
-// setTimeout(() => {
-//  loadBooks();
-//  loadGenres();
-// }, 1000);
+setTimeout(() => {
+  // loadBooks();
+  // loadGenres();
+}, 1000);
 
 export default app;

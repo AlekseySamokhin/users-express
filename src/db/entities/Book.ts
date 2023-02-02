@@ -5,9 +5,12 @@ import {
   AfterLoad,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 
 import { Genre } from './Genre';
+
+import { Rating } from './Rating';
 
 import { setUrl } from '../../utils/setUrl';
 
@@ -34,23 +37,23 @@ class Book {
   @Column({ type: 'date', nullable: true })
   releaseDate: Date;
 
-  @Column({ type: 'varchar', nullable: true })
-  rating: number;
-
   @Column({ type: 'boolean', nullable: false })
   isNew: boolean;
 
   @Column({ type: 'boolean', nullable: false })
   isBestseller: boolean;
 
-  @AfterLoad()
-  addURL(): void {
-    this.poster = setUrl.setURLBookPoster(this.poster);
-  }
+  @OneToMany(() => Rating, (rating) => rating.book, { nullable: true })
+  rating: Rating[];
 
   @ManyToMany(() => Genre, (genre) => genre.genreId)
   @JoinTable()
   genres: Genre[];
+
+  @AfterLoad()
+  addURL(): void {
+    this.poster = setUrl.setURLBookPoster(this.poster);
+  }
 }
 
 export { Book };

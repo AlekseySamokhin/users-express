@@ -73,7 +73,7 @@ const getAllBooks = async (
       } else if (sort === 'Author name') {
         books.orderBy('books.author', 'ASC');
       } else if (sort === 'Rating') {
-        books.orderBy('books.rating', 'ASC');
+        books.orderBy('books.rating', 'DESC');
       } else if (sort === 'Date of issue') {
         books.orderBy('books.releaseDate', 'ASC');
       } else {
@@ -95,8 +95,7 @@ const getAllBooks = async (
       pagesQty,
       currentPage: currentPage === 0 ? currentPage + 1 : currentPage,
       prevPage: currentPage - 1 < 0 ? 1 : currentPage - 1,
-      nextPage:
-        currentPage + 1 > pagesQty ? pagesQty : currentPage + 1,
+      nextPage: currentPage + 1 > pagesQty ? pagesQty : currentPage + 1,
     };
 
     // const filteredArrayOfBooks = await books.getMany();
@@ -121,6 +120,27 @@ const getOneBook = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
+const getRecommendationBooks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    console.log(1);
+
+    const randomBooks = await dbBooks
+      .createQueryBuilder('books')
+      .select()
+      .orderBy('RANDOM()')
+      .take(4)
+      .getMany();
+
+    res.status(StatusCodes.OK).json(randomBooks);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getAllGenres = async (
   req: Request,
   res: Response,
@@ -137,6 +157,7 @@ const getAllGenres = async (
 
 const bookController = {
   getAllBooks,
+  getRecommendationBooks,
   getOneBook,
   getAllGenres,
 };

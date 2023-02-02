@@ -35,7 +35,6 @@ const arrBooks = [
     isBestseller: true,
     isNew: false,
     releaseDate: '12/10/1993',
-    rating: 3.45,
   },
   {
     title: 'The Psychlogy of Money',
@@ -48,7 +47,6 @@ const arrBooks = [
     isBestseller: false,
     isNew: true,
     releaseDate: '12/10/1993',
-    rating: 2.99,
   },
   {
     title: 'The Picture of Dorian Gray',
@@ -61,7 +59,6 @@ const arrBooks = [
     isBestseller: false,
     isNew: false,
     releaseDate: '11/11/2011',
-    rating: 4.99,
   },
   {
     title: 'The Subtle art of not giving',
@@ -74,7 +71,6 @@ const arrBooks = [
     isBestseller: true,
     isNew: true,
     releaseDate: '9/09/2009',
-    rating: 3.75,
   },
   {
     title: 'The Two towers',
@@ -87,7 +83,6 @@ const arrBooks = [
     isBestseller: false,
     isNew: true,
     releaseDate: '07/07/2017',
-    rating: 4.75,
   },
   {
     title: 'Book of Fairy Tales',
@@ -100,7 +95,6 @@ const arrBooks = [
     isBestseller: false,
     isNew: false,
     releaseDate: '1/01/2022',
-    rating: 4.0,
   },
   {
     title: 'How to stop worrying and start living',
@@ -113,7 +107,6 @@ const arrBooks = [
     isBestseller: false,
     isNew: false,
     releaseDate: '2/10/1999',
-    rating: 4.0,
   },
   {
     title: 'Don’t sweat the Small Stuuff',
@@ -126,7 +119,6 @@ const arrBooks = [
     isBestseller: false,
     isNew: false,
     releaseDate: '2/02/1999',
-    rating: 2.5,
   },
   {
     title: 'The Weight of Things',
@@ -139,7 +131,6 @@ const arrBooks = [
     isBestseller: false,
     isNew: false,
     releaseDate: '10/12/1997',
-    rating: 3.45,
   },
   {
     title: 'milk and honey',
@@ -152,7 +143,6 @@ const arrBooks = [
     isBestseller: false,
     isNew: false,
     releaseDate: '5/05/2013',
-    rating: 3.95,
   },
   {
     title: 'Moby Dick',
@@ -165,7 +155,6 @@ const arrBooks = [
     isBestseller: false,
     isNew: false,
     releaseDate: '5/05/2013',
-    rating: 3.95,
   },
   {
     title: 'The Crying book',
@@ -178,7 +167,6 @@ const arrBooks = [
     isBestseller: false,
     isNew: false,
     releaseDate: '03/25/2004',
-    rating: 4.15,
   },
   {
     title: 'Harry Potter and the Philosopher`s Stone',
@@ -191,7 +179,6 @@ const arrBooks = [
     isBestseller: true,
     isNew: false,
     releaseDate: '03/28/2019',
-    rating: 4.3,
   },
   {
     title: 'Harry Potter and the Chamber of Secrets',
@@ -204,7 +191,6 @@ const arrBooks = [
     isBestseller: true,
     isNew: false,
     releaseDate: '03/06/2021',
-    rating: 4.65,
   },
   {
     title: 'Harry Potter and the Prisoner of Azkaban',
@@ -217,7 +203,6 @@ const arrBooks = [
     isBestseller: true,
     isNew: false,
     releaseDate: '10/12/2013',
-    rating: 3.25,
   },
   {
     title: 'Harry Potter and the Goblet of Fire',
@@ -230,7 +215,6 @@ const arrBooks = [
     isBestseller: true,
     isNew: false,
     releaseDate: '5/10/2004',
-    rating: 2.25,
   },
   {
     title: 'Harry Potter and the Order of the Phoenix',
@@ -243,7 +227,6 @@ const arrBooks = [
     isBestseller: true,
     isNew: false,
     releaseDate: '4/04/2002',
-    rating: 3.98,
   },
   {
     title: 'Harry Potter and the Half-Blood Prince',
@@ -256,7 +239,6 @@ const arrBooks = [
     isBestseller: true,
     isNew: false,
     releaseDate: '5/07/1994',
-    rating: 3.80,
   },
   {
     title: 'Harry Potter and the Deathly Hallows',
@@ -269,7 +251,6 @@ const arrBooks = [
     isBestseller: true,
     isNew: false,
     releaseDate: '07/07/1990',
-    rating: 4.85,
   },
   {
     title: 'Harry Potter and the Cursed Child',
@@ -282,7 +263,6 @@ const arrBooks = [
     isBestseller: true,
     isNew: false,
     releaseDate: '09/09/2018',
-    rating: 4.95,
   },
 ];
 
@@ -298,7 +278,6 @@ const loadBooks = async () => {
     book.isBestseller = arrBooks[i].isBestseller;
     book.isNew = arrBooks[i].isNew;
     book.releaseDate = new Date(arrBooks[i].releaseDate);
-    book.rating = arrBooks[i].rating;
 
     const arrGenres: Genre[] = [];
 
