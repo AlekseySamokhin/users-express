@@ -4,6 +4,8 @@ import { StatusCodes } from 'http-status-codes';
 
 import { dbBooks, dbGenres } from '../db';
 
+import { CustomError } from '../utils/CustomError';
+
 interface ITypesCustomRequest extends Request {
   query: {
     genres: string;
@@ -110,9 +112,18 @@ const getAllBooks = async (
 
 const getOneBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = Number(req.query.id);
+    const { bookId, userId } = req.query;
 
-    const book = await dbBooks.findOne({ where: { bookId: id } });
+    console.log(userId);
+
+    const book = await dbBooks.findOne({ where: { bookId: Number(bookId) } });
+
+    if (!book) {
+      throw new CustomError({
+        code: StatusCodes.NOT_FOUND,
+        message: 'Book was not found!',
+      });
+    }
 
     res.status(StatusCodes.OK).json(book);
   } catch (err) {
@@ -126,8 +137,6 @@ const getRecommendationBooks = async (
   next: NextFunction,
 ) => {
   try {
-    console.log(1);
-
     const randomBooks = await dbBooks
       .createQueryBuilder('books')
       .select()
