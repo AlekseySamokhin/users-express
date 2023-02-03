@@ -1,6 +1,6 @@
 import type { Request } from 'express';
 
-import type User from 'src/db/entities/User';
+import type { User } from '../db/entities/User';
 
 interface IAuthRequestType extends Request {
   user: User;

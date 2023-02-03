@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { Rating } from './Rating';
 
 @Entity()
@@ -18,7 +18,8 @@ class User {
   @Column({ type: 'varchar', select: false, nullable: false })
   password: string;
 
-  @OneToOne(() => Rating, (rating) => rating.user, { nullable: true })
+  @OneToOne(() => Rating, (rating) => rating.user)
+  @JoinColumn()
   rating: Rating;
 }
 

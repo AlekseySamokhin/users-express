@@ -2,7 +2,11 @@
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { dbBooks, dbGenres } from '../db';
+import type { IAuthRequestType } from '../interfaces/authRequest';
+
+import { dbBooks, dbGenres, dbRating, dbUsers } from '../db';
+
+import { Rating } from '../db/entities';
 
 import { CustomError } from '../utils/CustomError';
 
@@ -24,6 +28,7 @@ const getAllBooks = async (
 ) => {
   try {
     const { genres, minPrice, maxPrice, sort, page, search } = req.query;
+    console.log(genres);
 
     const books = dbBooks.createQueryBuilder('books');
 
@@ -33,7 +38,7 @@ const getAllBooks = async (
       books.innerJoinAndSelect(
         'books.genres',
         'genre',
-        'genre.name IN (:...arrayGenres)',
+        'genre.genreId IN (:...arrayGenres)',
         { arrayGenres },
       );
     }
@@ -115,6 +120,7 @@ const getOneBook = async (req: Request, res: Response, next: NextFunction) => {
     const { bookId, userId } = req.query;
 
     console.log(userId);
+    console.log(bookId);
 
     const book = await dbBooks.findOne({ where: { bookId: Number(bookId) } });
 
@@ -164,10 +170,67 @@ const getAllGenres = async (
   }
 };
 
+const setRatingBook = async (
+  req: IAuthRequestType,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { bookId, rate } = req.body as { bookId: number; rate: number };
+
+    const userId = req.user.id;
+
+    const book = await dbBooks.findOne({ where: { bookId } });
+
+    if (!book) {
+      throw new CustomError({
+        code: StatusCodes.NOT_FOUND,
+        message: 'Book was not found!',
+      });
+    }
+
+    const user = await dbUsers.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new CustomError({
+        code: StatusCodes.UNAUTHORIZED,
+        message: 'User was not authorized!',
+      });
+    }
+
+    const currentRating = await dbRating.findOne({
+      where: { user: { id: userId }, book: { bookId } },
+    });
+
+    if (currentRating) {
+      currentRating.rating = rate;
+
+      await dbRating.save(currentRating);
+    } else {
+      const newRating = new Rating();
+
+      newRating.rating = rate;
+      newRating.book = book;
+      newRating.user = user;
+
+      await dbRating.save(newRating);
+    }
+
+    const ratingOfbook = await dbRating.find({
+      where: { book: { bookId } },
+    });
+
+    console.log(ratingOfbook);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const bookController = {
   getAllBooks,
   getRecommendationBooks,
   getOneBook,
+  setRatingBook,
   getAllGenres,
 };
 

@@ -37,13 +37,17 @@ class Book {
   @Column({ type: 'date', nullable: true })
   releaseDate: Date;
 
+  @Column({ type: 'real', nullable: false })
+  averageRating: number;
+
   @Column({ type: 'boolean', nullable: false })
   isNew: boolean;
 
   @Column({ type: 'boolean', nullable: false })
   isBestseller: boolean;
 
-  @OneToMany(() => Rating, (rating) => rating.book, { nullable: true })
+  @OneToMany(() => Rating, (rating) => rating.book)
+  @JoinTable()
   rating: Rating[];
 
   @ManyToMany(() => Genre, (genre) => genre.genreId)
