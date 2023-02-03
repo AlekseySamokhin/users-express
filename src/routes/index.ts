@@ -10,6 +10,6 @@ const router = express.Router();
 
 router.use('/auth', authRouter);
 router.use('/user', checkAuth, userRouter);
-router.use('/book', checkAuth, bookRouter);
+router.use('/book', bookRouter);
 
 export default router;

@@ -6,10 +6,7 @@ import { errorHandler } from './middlewares/errorHandler';
 import routes from './routes';
 import config from './config';
 
-import {
-// loadBooks,
-// loadGenres
-} from '../loadBook/datas';
+// import { loadBooks } from '../loadBook/datas';
 
 const {
   server: { endpoint },

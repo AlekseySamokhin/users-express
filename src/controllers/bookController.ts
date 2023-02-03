@@ -28,7 +28,6 @@ const getAllBooks = async (
 ) => {
   try {
     const { genres, minPrice, maxPrice, sort, page, search } = req.query;
-    console.log(genres);
 
     const books = dbBooks.createQueryBuilder('books');
 
