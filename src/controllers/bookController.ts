@@ -2,6 +2,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
+import { jwtUtils } from '../utils';
+
 import type { IAuthRequestType } from '../interfaces/authRequest';
 
 import { dbBooks, dbGenres, dbRating, dbUsers } from '../db';
@@ -74,13 +76,13 @@ const getAllBooks = async (
     // }
 
     if (sort) {
-      if (sort === 'Name') {
+      if (sort === '2') {
         books.orderBy('books.title', 'ASC');
-      } else if (sort === 'Author name') {
+      } else if (sort === '3') {
         books.orderBy('books.author', 'ASC');
-      } else if (sort === 'Rating') {
+      } else if (sort === '4') {
         books.orderBy('books.rating', 'DESC');
-      } else if (sort === 'Date of issue') {
+      } else if (sort === '5') {
         books.orderBy('books.releaseDate', 'ASC');
       } else {
         books.orderBy('books.price', 'ASC');
@@ -116,10 +118,11 @@ const getAllBooks = async (
 
 const getOneBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { bookId, userId } = req.query;
+    const { bookId } = req.query;
 
-    console.log(userId);
-    console.log(bookId);
+    const token: string = req.headers.authorization.split(' ')[1];
+
+    const { id } = jwtUtils.parse(token);
 
     const book = await dbBooks.findOne({ where: { bookId: Number(bookId) } });
 
@@ -130,7 +133,19 @@ const getOneBook = async (req: Request, res: Response, next: NextFunction) => {
       });
     }
 
-    res.status(StatusCodes.OK).json(book);
+    const personalRating = await dbRating.findOne({
+      where: { user: { id: Number(id) }, book: { bookId: Number(bookId) } },
+    });
+
+    console.log(personalRating);
+
+    if (personalRating) {
+      return res
+        .status(StatusCodes.OK)
+        .json({ book, personalRating: personalRating.rating });
+    }
+
+    return res.status(StatusCodes.OK).json({ book, personalRating: 0 });
   } catch (err) {
     next(err);
   }
@@ -175,9 +190,11 @@ const setRatingBook = async (
   next: NextFunction,
 ) => {
   try {
-    const { bookId, rate } = req.body as { bookId: number; rate: number };
-
-    const userId = req.user.id;
+    const { bookId, userId, rate } = req.body as {
+      bookId: number;
+      userId: number;
+      rate: number;
+    };
 
     const book = await dbBooks.findOne({ where: { bookId } });
 
@@ -219,7 +236,24 @@ const setRatingBook = async (
       where: { book: { bookId } },
     });
 
-    console.log(ratingOfbook);
+    if (ratingOfbook.length === 0) {
+      return res.status(StatusCodes.OK).json({
+        averageRating: 0,
+      });
+    }
+
+    const averageRating =
+      ratingOfbook.reduce((acc, cur) => acc + cur.rating, 0) /
+      ratingOfbook.length;
+
+    book.averageRating = averageRating;
+
+    await dbBooks.save(book);
+
+    return res.status(StatusCodes.OK).json({
+      averageRating,
+      personalRating: currentRating.rating,
+    });
   } catch (err) {
     next(err);
   }
