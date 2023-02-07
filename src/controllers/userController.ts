@@ -1,145 +1,21 @@
 /* eslint-disable no-console */
-import type { NextFunction, Request, Response } from 'express';
-import fs from 'fs';
+import type { NextFunction, Response } from 'express';
 import { v4 as uuid } from 'uuid';
 import { StatusCodes } from 'http-status-codes';
-// import path from 'path';
-
-import config from '../config';
+import fs from 'fs';
 
 import { dbUsers } from '../db';
+import config from '../config';
 
 import type { ITypesDataUser } from '../interfaces/user';
 import type { IAuthRequestType } from '../interfaces/authRequest';
 
 import { passUtils, messages } from '../utils';
 
-import { CustomError } from '../utils/CustomError';
-
 const {
   server: { serverUrl },
   client: { rootPath },
 } = config;
-
-const getUsers = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const allUsers = await dbUsers.find();
-
-    res.status(StatusCodes.OK).json({ allUsers });
-  } catch (err) {
-    next(err);
-  }
-};
-
-const getUser = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const id = Number(req.params.id);
-
-    const user = await dbUsers.findOneBy({ id });
-
-    if (!user) {
-      throw new CustomError({
-        code: StatusCodes.UNAUTHORIZED,
-        message: 'User is not found!',
-      });
-    }
-
-    res.status(StatusCodes.OK).json({ user });
-  } catch (err) {
-    next(err);
-  }
-};
-
-const removeUsers = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const allUsers = await dbUsers.find();
-
-    allUsers.forEach((user) => {
-      dbUsers.delete(user.id);
-    });
-
-    res.status(StatusCodes.OK).json({ message: messages.success.USERS_DELETE });
-  } catch (err) {
-    next(err);
-  }
-};
-
-const removeUser = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const id = Number(req.params.id);
-
-    const user = await dbUsers.findOneBy({ id });
-
-    if (!user) {
-      throw new CustomError({
-        code: StatusCodes.UNAUTHORIZED,
-        message: 'User is not found!',
-      });
-    }
-
-    await dbUsers.delete(id);
-
-    res.status(StatusCodes.OK).json({ message: messages.success.USER_DELETE });
-  } catch (err) {
-    next(err);
-  }
-};
-
-const updateUser = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { fullName: newFullName, email: newEmail } =
-      req.body as ITypesDataUser;
-
-    let newPassword = req.body.password;
-
-    const id = Number(req.params.id);
-
-    const existUser = await dbUsers
-      .createQueryBuilder('user')
-      .addSelect('user.password')
-      .where('user.id = :id', { id })
-      .getOne();
-
-    if (!existUser) {
-      throw new CustomError({
-        code: StatusCodes.UNAUTHORIZED,
-        message: 'User is not found!',
-      });
-    }
-
-    if (newPassword) {
-      const hashedPassword = passUtils.hash(newPassword);
-
-      const doPasswordsMatch = passUtils.compare(
-        newPassword,
-        existUser.password,
-      );
-
-      if (!doPasswordsMatch) {
-        throw new CustomError({
-          code: StatusCodes.UNAUTHORIZED,
-          message: 'User is not found!',
-        });
-      }
-
-      newPassword = hashedPassword;
-    }
-
-    const updatedUser = {
-      fullName: newFullName || existUser.fullName,
-      email: newEmail || existUser.email,
-      password: newPassword || existUser.password,
-    };
-
-    dbUsers.merge(existUser, updatedUser);
-
-    await dbUsers.save(existUser);
-
-    res.status(StatusCodes.OK).json({ message: messages.success.USER_UPDATE });
-  } catch (err) {
-    next(err);
-  }
-};
 
 const updateInfoUser = async (
   req: IAuthRequestType,
@@ -263,12 +139,6 @@ const uploadAvatar = async (
 };
 
 const userController = {
-  getUsers,
-  getUser,
-  removeUsers,
-  removeUser,
-  updateUser,
-
   updatePassUser,
   updateInfoUser,
   uploadAvatar,

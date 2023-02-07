@@ -10,7 +10,7 @@ class Genre {
   @Column({ type: 'varchar', unique: true, nullable: false })
   name: string;
 
-  @ManyToMany(() => Book, (book) => book.bookId)
+  @ManyToMany(() => Book, (book) => book.bookId, { cascade: true })
   books: Book[];
 }
 

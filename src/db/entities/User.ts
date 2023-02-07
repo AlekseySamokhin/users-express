@@ -1,5 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
+
 import { Rating } from './Rating';
+import { Comment } from './Comment';
 
 @Entity()
 class User {
@@ -18,7 +27,11 @@ class User {
   @Column({ type: 'varchar', select: false, nullable: false })
   password: string;
 
-  @OneToOne(() => Rating, (rating) => rating.user)
+  @OneToMany(() => Comment, (comment) => comment.user, { cascade: true })
+  @JoinColumn()
+  comment: Comment[];
+
+  @OneToOne(() => Rating, (rating) => rating.user, { cascade: true })
   @JoinColumn()
   rating: Rating;
 }

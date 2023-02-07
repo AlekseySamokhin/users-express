@@ -6,7 +6,7 @@ import { jwtUtils } from '../utils';
 
 import type { IAuthRequestType } from '../interfaces/authRequest';
 
-import { dbBooks, dbGenres, dbRating, dbUsers } from '../db';
+import { dbBooks, dbGenres, dbRatings, dbUsers } from '../db';
 
 import { Rating } from '../db/entities';
 
@@ -26,7 +26,7 @@ interface ITypesCustomRequest extends Request {
 const getAllBooks = async (
   req: ITypesCustomRequest,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const { genres, minPrice, maxPrice, sort, page, search } = req.query;
@@ -40,7 +40,7 @@ const getAllBooks = async (
         'books.genres',
         'genre',
         'genre.genreId IN (:...arrayGenres)',
-        { arrayGenres },
+        { arrayGenres }
       );
     }
 
@@ -51,29 +51,12 @@ const getAllBooks = async (
       });
     }
 
-    // if (maxPrice) {
-    //   books.where('books.price <= :maxPrice', { maxPrice });
-    // }
-
-    // if (minPrice) {
-    //   books.where('books.price >= :minPrice', { minPrice });
-    // }
-
     if (search) {
       books.andWhere(
         'books.title ILIKE :search OR books.author ILIKE :search',
-        { search: `%${search}%` },
+        { search: `%${search}%` }
       );
     }
-
-    // if (maxPrice && minPrice) {
-    //   if (maxPrice === minPrice) {
-    //     books.where('books.price = :minPrice', { minPrice });
-    //   } else {
-    //     books.where('books.price => :minPrice', { minPrice });
-    //     books.where('books.price <= :maxPrice', { maxPrice });
-    //   }
-    // }
 
     if (sort) {
       if (sort === '2') {
@@ -106,8 +89,6 @@ const getAllBooks = async (
       nextPage: currentPage + 1 > pagesQty ? pagesQty : currentPage + 1,
     };
 
-    // const filteredArrayOfBooks = await books.getMany();
-
     res
       .status(StatusCodes.OK)
       .json({ books: filteredArrayOfBooks, info: serviceBook });
@@ -133,11 +114,9 @@ const getOneBook = async (req: Request, res: Response, next: NextFunction) => {
       });
     }
 
-    const personalRating = await dbRating.findOne({
+    const personalRating = await dbRatings.findOne({
       where: { user: { id: Number(id) }, book: { bookId: Number(bookId) } },
     });
-
-    console.log(personalRating);
 
     if (personalRating) {
       return res
@@ -154,7 +133,7 @@ const getOneBook = async (req: Request, res: Response, next: NextFunction) => {
 const getRecommendationBooks = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const randomBooks = await dbBooks
@@ -173,7 +152,7 @@ const getRecommendationBooks = async (
 const getAllGenres = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const allGenres = await dbGenres.find();
@@ -184,10 +163,10 @@ const getAllGenres = async (
   }
 };
 
-const setRatingBook = async (
+const addRatingBook = async (
   req: IAuthRequestType,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const { bookId, userId, rate } = req.body as {
@@ -214,14 +193,14 @@ const setRatingBook = async (
       });
     }
 
-    const currentRating = await dbRating.findOne({
+    const currentRating = await dbRatings.findOne({
       where: { user: { id: userId }, book: { bookId } },
     });
 
     if (currentRating) {
       currentRating.rating = rate;
 
-      await dbRating.save(currentRating);
+      await dbRatings.save(currentRating);
     } else {
       const newRating = new Rating();
 
@@ -229,10 +208,10 @@ const setRatingBook = async (
       newRating.book = book;
       newRating.user = user;
 
-      await dbRating.save(newRating);
+      await dbRatings.save(newRating);
     }
 
-    const ratingOfbook = await dbRating.find({
+    const ratingOfbook = await dbRatings.find({
       where: { book: { bookId } },
     });
 
@@ -251,7 +230,7 @@ const setRatingBook = async (
     await dbBooks.save(book);
 
     return res.status(StatusCodes.OK).json({
-      averageRating,
+      book,
       personalRating: currentRating.rating,
     });
   } catch (err) {
@@ -259,11 +238,32 @@ const setRatingBook = async (
   }
 };
 
+const addFavorite = async (
+  req: IAuthRequestType,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { bookId } = req.body;
+
+    const token: string = req.headers.authorization.split(' ')[1];
+
+    const { id } = jwtUtils.parse(token);
+
+    console.log(id);
+
+    console.log(bookId);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const bookController = {
+  addFavorite,
   getAllBooks,
   getRecommendationBooks,
   getOneBook,
-  setRatingBook,
+  addRatingBook,
   getAllGenres,
 };
 
