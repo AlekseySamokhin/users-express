@@ -6,9 +6,9 @@ import { jwtUtils } from '../utils';
 
 import type { IAuthRequestType } from '../interfaces/authRequest';
 
-import { dbBooks, dbGenres, dbRatings, dbUsers } from '../db';
+import { dbBooks, dbGenres, dbRatings, dbUsers, dbFavoritesBooks } from '../db';
 
-import { Rating } from '../db/entities';
+import { Rating, FavoriteBook } from '../db/entities';
 
 import { CustomError } from '../utils/CustomError';
 
@@ -26,7 +26,7 @@ interface ITypesCustomRequest extends Request {
 const getAllBooks = async (
   req: ITypesCustomRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { genres, minPrice, maxPrice, sort, page, search } = req.query;
@@ -40,7 +40,7 @@ const getAllBooks = async (
         'books.genres',
         'genre',
         'genre.genreId IN (:...arrayGenres)',
-        { arrayGenres }
+        { arrayGenres },
       );
     }
 
@@ -54,7 +54,7 @@ const getAllBooks = async (
     if (search) {
       books.andWhere(
         'books.title ILIKE :search OR books.author ILIKE :search',
-        { search: `%${search}%` }
+        { search: `%${search}%` },
       );
     }
 
@@ -133,7 +133,7 @@ const getOneBook = async (req: Request, res: Response, next: NextFunction) => {
 const getRecommendationBooks = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const randomBooks = await dbBooks
@@ -152,7 +152,7 @@ const getRecommendationBooks = async (
 const getAllGenres = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const allGenres = await dbGenres.find();
@@ -166,7 +166,7 @@ const getAllGenres = async (
 const addRatingBook = async (
   req: IAuthRequestType,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { bookId, userId, rate } = req.body as {
@@ -241,7 +241,7 @@ const addRatingBook = async (
 const addFavorite = async (
   req: IAuthRequestType,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { bookId } = req.body;
@@ -250,9 +250,20 @@ const addFavorite = async (
 
     const { id } = jwtUtils.parse(token);
 
-    console.log(id);
+    const favoriteBook = new FavoriteBook();
 
-    console.log(bookId);
+    favoriteBook.bookId = bookId;
+    favoriteBook.userId = id;
+
+    await dbFavoritesBooks.save(favoriteBook);
+
+    const favoritesBooks = await dbFavoritesBooks
+      .createQueryBuilder('favoriteBook')
+      .where('favoriteBook.userId = :userId', { userId: id })
+      .leftJoinAndSelect('favoriteBook.book', 'book')
+      .getMany();
+
+    return res.status(StatusCodes.OK).json(favoritesBooks);
   } catch (err) {
     next(err);
   }

@@ -27,7 +27,7 @@ class User {
   @Column({ type: 'varchar', select: false, nullable: false })
   password: string;
 
-  @OneToMany(() => Comment, (comment) => comment.user, { cascade: true })
+  @OneToMany(() => Comment, (comment) => comment.user, { nullable: true, cascade: true })
   @JoinColumn()
   comment: Comment[];
 

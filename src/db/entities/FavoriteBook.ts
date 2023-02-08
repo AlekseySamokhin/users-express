@@ -21,11 +21,11 @@ class FavoriteBook {
   userId: number;
 
   @ManyToOne(() => User, (user) => user.id)
-  @JoinColumn()
+  @JoinColumn({ name: 'userId' })
   user: User;
 
   @ManyToOne(() => Book, (book) => book.bookId)
-  @JoinColumn()
+  @JoinColumn({ name: 'bookId' })
   book: Book;
 }
 
