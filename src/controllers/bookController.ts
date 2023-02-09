@@ -12,7 +12,7 @@ import { Rating, FavoriteBook } from '../db/entities';
 
 import { CustomError } from '../utils/CustomError';
 
-interface ITypesCustomRequest extends Request {
+interface ITypeCustomRequest extends Request {
   query: {
     genres: string;
     minPrice: string;
@@ -24,7 +24,7 @@ interface ITypesCustomRequest extends Request {
 }
 
 const getAllBooks = async (
-  req: ITypesCustomRequest,
+  req: ITypeCustomRequest,
   res: Response,
   next: NextFunction,
 ) => {
@@ -269,8 +269,40 @@ const addFavorite = async (
   }
 };
 
+const deleteFavorite = async (
+  req: IAuthRequestType,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { bookId } = req.body.params;
+
+    const token: string = req.headers.authorization.split(' ')[1];
+
+    const { id } = jwtUtils.parse(token);
+
+    const unLiked = await dbFavoritesBooks
+      .createQueryBuilder('favoriteBook')
+      .where('favoriteBook.bookId = :bookId', { bookId })
+      .getOne();
+
+    await dbFavoritesBooks.remove(unLiked);
+
+    const favoritesBooks = await dbFavoritesBooks
+      .createQueryBuilder('favoriteBook')
+      .where('favoriteBook.userId = :userId', { userId: id })
+      .leftJoinAndSelect('favoriteBook.book', 'book')
+      .getMany();
+
+    return res.status(StatusCodes.OK).json(favoritesBooks);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const bookController = {
   addFavorite,
+  deleteFavorite,
   getAllBooks,
   getRecommendationBooks,
   getOneBook,

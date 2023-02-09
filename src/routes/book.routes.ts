@@ -10,5 +10,6 @@ bookRouter.get('/genres', bookController.getAllGenres);
 bookRouter.get('/recommendation', bookController.getRecommendationBooks);
 bookRouter.post('/add', bookController.addRatingBook);
 bookRouter.post('/add-favorite', bookController.addFavorite);
+bookRouter.post('/delete-favorite', bookController.deleteFavorite);
 
 export { bookRouter };
