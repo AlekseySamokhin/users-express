@@ -238,7 +238,7 @@ const addRatingBook = async (
   }
 };
 
-const addFavorite = async (
+const addFavoriteBook = async (
   req: IAuthRequestType,
   res: Response,
   next: NextFunction,
@@ -269,7 +269,7 @@ const addFavorite = async (
   }
 };
 
-const deleteFavorite = async (
+const deleteFavoriteBook = async (
   req: IAuthRequestType,
   res: Response,
   next: NextFunction,
@@ -278,7 +278,6 @@ const deleteFavorite = async (
     const { bookId } = req.body.params;
 
     const token: string = req.headers.authorization.split(' ')[1];
-
     const { id } = jwtUtils.parse(token);
 
     const unLiked = await dbFavoritesBooks
@@ -300,9 +299,22 @@ const deleteFavorite = async (
   }
 };
 
+const getAllFavoritesBooks = async (
+  req: IAuthRequestType,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    console.log(1);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const bookController = {
-  addFavorite,
-  deleteFavorite,
+  addFavoriteBook,
+  deleteFavoriteBook,
+  getAllFavoritesBooks,
   getAllBooks,
   getRecommendationBooks,
   getOneBook,
