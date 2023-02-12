@@ -6,10 +6,6 @@ const {
   jwt: { privateKey, expiresIn, type },
 } = config;
 
-interface ITokenPayloadType {
-  id: number;
-}
-
 const generate = (id: number): string => {
   return jwt.sign({ id }, privateKey, {
     expiresIn,
@@ -17,7 +13,8 @@ const generate = (id: number): string => {
 };
 
 const parse = (token: string) => {
-  return jwt.verify(token, privateKey) as ITokenPayloadType;
+// eslint-disable-next-line no-console
+  return jwt.verify(token, privateKey) as { id: number };
 };
 
 const validate = (token: string): boolean => {

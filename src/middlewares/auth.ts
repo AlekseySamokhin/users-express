@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { StatusCodes } from 'http-status-codes';
-import type { Handler, NextFunction, Response } from 'express';
+import type { Handler } from 'express';
 
 import { dbUsers } from '../db';
 
@@ -12,13 +12,22 @@ import type { IAuthRequestType } from '../interfaces/authRequest';
 
 const checkAuth: Handler = async (
   req: IAuthRequestType,
-  res: Response,
-  next: NextFunction,
+  res,
+  next,
 ) => {
   try {
-    const authHeader = req.headers.authorization.split(' ');
+    if (!req.headers.authorization) {
+      throw new CustomError({
+        code: StatusCodes.UNAUTHORIZED,
+        message: 'User was not authorized!',
+      });
+    }
 
-    const [typeToken, foundToken] = authHeader;
+    const infoToken = req.headers.authorization.split(' ');
+
+    const [typeToken, foundToken] = infoToken;
+
+    const { id } = jwtUtils.parse(foundToken);
 
     if (!foundToken) {
       throw new CustomError({
@@ -35,8 +44,6 @@ const checkAuth: Handler = async (
         message: 'Token is not valid!',
       });
     }
-
-    const { id } = jwtUtils.parse(foundToken);
 
     req.user = await dbUsers.findOneBy({ id });
 

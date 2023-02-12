@@ -12,6 +12,8 @@ import { Rating, FavoriteBook } from '../db/entities';
 
 import { CustomError } from '../utils/CustomError';
 
+import type { Book } from '../db/entities';
+
 interface ITypeCustomRequest extends Request {
   query: {
     genres: string;
@@ -229,8 +231,13 @@ const addRatingBook = async (
 
     await dbBooks.save(book);
 
+    // return res.status(StatusCodes.OK).json({
+    //   book,
+    //   personalRating: currentRating.rating,
+    // });
+
     return res.status(StatusCodes.OK).json({
-      book,
+      averageRating: book.averageRating,
       personalRating: currentRating.rating,
     });
   } catch (err) {
@@ -263,7 +270,13 @@ const addFavoriteBook = async (
       .leftJoinAndSelect('favoriteBook.book', 'book')
       .getMany();
 
-    return res.status(StatusCodes.OK).json(favoritesBooks);
+    const favoritesBooksArray = [] as Book[];
+
+    favoritesBooks.forEach((favoriteBook) => {
+      favoritesBooksArray.push(favoriteBook.book);
+    });
+
+    return res.status(StatusCodes.OK).json(favoritesBooksArray);
   } catch (err) {
     next(err);
   }
@@ -293,19 +306,13 @@ const deleteFavoriteBook = async (
       .leftJoinAndSelect('favoriteBook.book', 'book')
       .getMany();
 
-    return res.status(StatusCodes.OK).json(favoritesBooks);
-  } catch (err) {
-    next(err);
-  }
-};
+    const favoritesBooksArray = [] as Book[];
 
-const getAllFavoritesBooks = async (
-  req: IAuthRequestType,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    console.log(1);
+    favoritesBooks.forEach((favoriteBook) => {
+      favoritesBooksArray.push(favoriteBook.book);
+    });
+
+    return res.status(StatusCodes.OK).json(favoritesBooksArray);
   } catch (err) {
     next(err);
   }
@@ -314,7 +321,6 @@ const getAllFavoritesBooks = async (
 const bookController = {
   addFavoriteBook,
   deleteFavoriteBook,
-  getAllFavoritesBooks,
   getAllBooks,
   getRecommendationBooks,
   getOneBook,

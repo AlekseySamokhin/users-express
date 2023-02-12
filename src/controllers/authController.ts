@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { User } from '../db/entities/User';
-import { dbUsers } from '../db';
+import { dbFavoritesBooks, dbUsers } from '../db';
 
 import { passUtils, jwtUtils } from '../utils';
 
@@ -11,6 +11,7 @@ import { CustomError } from '../utils/CustomError';
 
 import type { ITypesDataUser } from '../interfaces/user';
 import type { IAuthRequestType } from '../interfaces/authRequest';
+import type { Book } from '../db/entities';
 
 const signUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -71,9 +72,9 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
       });
     }
 
-    const accessToken = jwtUtils.generate(existUser.id);
-
     delete existUser.password;
+
+    const accessToken = jwtUtils.generate(existUser.id);
 
     res.status(StatusCodes.OK).json({ user: existUser, accessToken });
   } catch (err) {
@@ -84,26 +85,42 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
 const getCurrentUser = async (
   req: IAuthRequestType,
   res: Response,
-  next: NextFunction,
+  // next: NextFunction
 ) => {
-  try {
-    if (!req.headers.authorization) {
-      throw new CustomError({
-        code: StatusCodes.UNAUTHORIZED,
-        message: 'User was not authorized!',
-      });
-    }
+  // try {
+  // if (!req.headers.authorization) {
+  //   throw new CustomError({
+  //     code: StatusCodes.UNAUTHORIZED,
+  //     message: 'User was not authorized!',
+  //   });
+  // }
 
-    const token: string = req.headers.authorization.split(' ')[1];
+  const token: string = req.headers.authorization.split(' ')[1];
 
-    const { id } = jwtUtils.parse(token);
+  const { id } = jwtUtils.parse(token);
 
-    const currentUser = await dbUsers.findOne({ where: { id } });
+  const currentUser = await dbUsers.findOne({
+    where: { id },
+  });
 
-    res.status(StatusCodes.OK).json(currentUser);
-  } catch (err) {
-    next(err);
-  }
+  const favoritesBooks = await dbFavoritesBooks
+    .createQueryBuilder('favoriteBook')
+    .where('favoriteBook.userId = :userId', { userId: id })
+    .leftJoinAndSelect('favoriteBook.book', 'book')
+    .getMany();
+
+  const favoritesBooksArray = [] as Book[];
+
+  favoritesBooks.forEach((favoriteBook) => {
+    favoritesBooksArray.push(favoriteBook.book);
+  });
+
+  console.log(currentUser);
+
+  res.status(StatusCodes.OK).json({ currentUser, favoritesBooksArray });
+  // } catch (err) {
+  // next(err);
+  // }
 };
 
 const authController = { signUp, signIn, getCurrentUser };

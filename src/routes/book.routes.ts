@@ -11,6 +11,5 @@ bookRouter.get('/recommendation', bookController.getRecommendationBooks);
 bookRouter.post('/add', bookController.addRatingBook);
 bookRouter.post('/add-favorite', bookController.addFavoriteBook);
 bookRouter.post('/delete-favorite', bookController.deleteFavoriteBook);
-bookRouter.get('/all-favorites', bookController.getAllFavoritesBooks);
 
 export { bookRouter };
