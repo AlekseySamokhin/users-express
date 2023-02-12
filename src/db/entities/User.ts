@@ -9,6 +9,7 @@ import {
 
 import { Rating } from './Rating';
 import { Comment } from './Comment';
+import { Cart } from './Cart';
 
 @Entity()
 class User {
@@ -30,6 +31,10 @@ class User {
   @OneToMany(() => Comment, (comment) => comment.user, { nullable: true, cascade: true })
   @JoinColumn()
   comment: Comment[];
+
+  @OneToMany(() => Cart, (cart) => cart.book)
+  @JoinColumn()
+  cart: Cart[];
 
   @OneToOne(() => Rating, (rating) => rating.user, { cascade: true })
   @JoinColumn()

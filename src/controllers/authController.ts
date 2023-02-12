@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { User } from '../db/entities/User';
-import { dbFavoritesBooks, dbUsers } from '../db';
+import { dbCart, dbFavoritesBooks, dbUsers } from '../db';
 
 import { passUtils, jwtUtils } from '../utils';
 
@@ -109,15 +109,24 @@ const getCurrentUser = async (
     .leftJoinAndSelect('favoriteBook.book', 'book')
     .getMany();
 
+  const cartUser = await dbCart.find({
+    relations: {
+      book: true,
+    },
+    where: {
+      user: {
+        id,
+      },
+    },
+  });
+
   const favoritesBooksArray = [] as Book[];
 
   favoritesBooks.forEach((favoriteBook) => {
     favoritesBooksArray.push(favoriteBook.book);
   });
 
-  console.log(currentUser);
-
-  res.status(StatusCodes.OK).json({ currentUser, favoritesBooksArray });
+  res.status(StatusCodes.OK).json({ currentUser, favoritesBooksArray, cartUser });
   // } catch (err) {
   // next(err);
   // }

@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
 
-// import { Book } from './Book';
-// import { User } from './User';
+import { Book } from './Book';
+import { User } from './User';
 
 @Entity()
 class Cart {
@@ -11,11 +11,11 @@ class Cart {
   @Column({ type: 'varchar', nullable: false })
   count: number;
 
-  //  @ManyToOne(() => Book, (book) => book.cart, { nullable: false })
-  //  book: Book;
+  @ManyToOne(() => Book, (book) => book.cart, { nullable: false })
+  book: Book;
 
-  //  @ManyToOne(() => User, (user) => user.cart, { nullable: false })
-  //  user: User;
+  @ManyToOne(() => User, (user) => user.cart, { nullable: false })
+  user: User;
 }
 
 export { Cart };

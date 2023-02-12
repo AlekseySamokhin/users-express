@@ -12,6 +12,7 @@ import {
 import { Genre } from './Genre';
 import { Rating } from './Rating';
 import { Comment } from './Comment';
+import { Cart } from './Cart';
 
 import { setUrl } from '../../utils/setUrl';
 
@@ -58,6 +59,10 @@ class Book {
   @OneToMany(() => Comment, (comment) => comment.book)
   @JoinColumn()
   comment: Comment[];
+
+  @OneToMany(() => Cart, (cart) => cart.book)
+  @JoinColumn()
+  cart: Cart[];
 
   @AfterLoad()
   addURL(): void {
