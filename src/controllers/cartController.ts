@@ -54,7 +54,74 @@ const addCartBook = async (req: Request, res: Response, next: NextFunction) => {
       await dbCart.save(cart);
     }
 
-    return res.status(StatusCodes.OK);
+    res.sendStatus(StatusCodes.OK);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const deleteCartBook = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { cartId } = req.query;
+
+    const book = await dbCart.findOne({
+      where: {
+        id: Number(cartId),
+      },
+    });
+
+    await dbCart.remove(book);
+
+    res.sendStatus(StatusCodes.OK);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getCart = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const token: string = req.headers.authorization.split(' ')[1];
+
+    const { id } = jwtUtils.parse(token);
+
+    const cart = await dbCart.find({
+      relations: {
+        book: true,
+      },
+      where: {
+        user: {
+          id,
+        },
+      },
+    });
+
+    res.status(StatusCodes.OK).json(cart);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const changeQtyBooksCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { cartId, count } = req.body.params;
+
+    const cart = await dbCart.findOneBy({
+      id: cartId,
+    });
+
+    cart.count = count;
+
+    await dbCart.save(cart);
+
+    res.sendStatus(StatusCodes.OK);
   } catch (err) {
     next(err);
   }
@@ -62,6 +129,9 @@ const addCartBook = async (req: Request, res: Response, next: NextFunction) => {
 
 const cartController = {
   addCartBook,
+  deleteCartBook,
+  getCart,
+  changeQtyBooksCart,
 };
 
 export { cartController };

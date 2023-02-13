@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
@@ -76,7 +75,24 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
 
     const accessToken = jwtUtils.generate(existUser.id);
 
-    res.status(StatusCodes.OK).json({ user: existUser, accessToken });
+    const favorites = await dbFavoritesBooks
+      .createQueryBuilder('favoriteBook')
+      .where('favoriteBook.userId = :userId', { userId: existUser.id })
+      .leftJoinAndSelect('favoriteBook.book', 'book')
+      .getMany();
+
+    const cart = await dbCart.find({
+      relations: {
+        book: true,
+      },
+      where: {
+        user: {
+          id: existUser.id,
+        },
+      },
+    });
+
+    res.status(StatusCodes.OK).json({ user: existUser, accessToken, favorites, cart });
   } catch (err) {
     next(err);
   }
