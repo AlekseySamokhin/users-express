@@ -4,9 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { User } from '../db/entities/User';
 import { dbCart, dbFavoritesBooks, dbUsers } from '../db';
 
-import { passUtils, jwtUtils } from '../utils';
-
-import { CustomError } from '../utils/CustomError';
+import { passUtils, jwtUtils, CustomError } from '../utils';
 
 import type { ITypesDataUser } from '../interfaces/user';
 import type { IAuthRequestType } from '../interfaces/authRequest';
@@ -92,7 +90,9 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
       },
     });
 
-    res.status(StatusCodes.OK).json({ user: existUser, accessToken, favorites, cart });
+    res
+      .status(StatusCodes.OK)
+      .json({ user: existUser, accessToken, favorites, cart });
   } catch (err) {
     next(err);
   }
@@ -101,51 +101,53 @@ const signIn = async (req: Request, res: Response, next: NextFunction) => {
 const getCurrentUser = async (
   req: IAuthRequestType,
   res: Response,
-  // next: NextFunction
+  next: NextFunction,
 ) => {
-  // try {
-  // if (!req.headers.authorization) {
-  //   throw new CustomError({
-  //     code: StatusCodes.UNAUTHORIZED,
-  //     message: 'User was not authorized!',
-  //   });
-  // }
+  try {
+    // if (!req.headers.authorization) {
+    //   throw new CustomError({
+    //     code: StatusCodes.UNAUTHORIZED,
+    //     message: 'User was not authorized!',
+    //   });
+    // }
 
-  const token: string = req.headers.authorization.split(' ')[1];
+    const token: string = req.headers.authorization.split(' ')[1];
 
-  const { id } = jwtUtils.parse(token);
+    const { id } = jwtUtils.parse(token);
 
-  const currentUser = await dbUsers.findOne({
-    where: { id },
-  });
+    const currentUser = await dbUsers.findOne({
+      where: { id },
+    });
 
-  const favoritesBooks = await dbFavoritesBooks
-    .createQueryBuilder('favoriteBook')
-    .where('favoriteBook.userId = :userId', { userId: id })
-    .leftJoinAndSelect('favoriteBook.book', 'book')
-    .getMany();
+    const favoritesBooks = await dbFavoritesBooks
+      .createQueryBuilder('favoriteBook')
+      .where('favoriteBook.userId = :userId', { userId: id })
+      .leftJoinAndSelect('favoriteBook.book', 'book')
+      .getMany();
 
-  const cartUser = await dbCart.find({
-    relations: {
-      book: true,
-    },
-    where: {
-      user: {
-        id,
+    const cartUser = await dbCart.find({
+      relations: {
+        book: true,
       },
-    },
-  });
+      where: {
+        user: {
+          id,
+        },
+      },
+    });
 
-  const favoritesBooksArray = [] as Book[];
+    const favoritesBooksArray = [] as Book[];
 
-  favoritesBooks.forEach((favoriteBook) => {
-    favoritesBooksArray.push(favoriteBook.book);
-  });
+    favoritesBooks.forEach((favoriteBook) => {
+      favoritesBooksArray.push(favoriteBook.book);
+    });
 
-  res.status(StatusCodes.OK).json({ currentUser, favoritesBooksArray, cartUser });
-  // } catch (err) {
-  // next(err);
-  // }
+    res
+      .status(StatusCodes.OK)
+      .json({ currentUser, favoritesBooksArray, cartUser });
+  } catch (err) {
+    next(err);
+  }
 };
 
 const authController = { signUp, signIn, getCurrentUser };
