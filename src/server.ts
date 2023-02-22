@@ -1,3 +1,6 @@
+import { createServer } from 'http';
+// import { Server } from 'socket.io';
+
 import app from './app';
 
 import connectToDb from './db/connectToDb';
@@ -10,7 +13,15 @@ const { port } = config.server;
   try {
     await connectToDb();
 
-    app.listen(port, () => {
+    const server = createServer(app);
+
+    // const io = new Server(server, {
+    //   cors: {
+    //     origin: `${config.client.url}`,
+    //   },
+    // });
+
+    server.listen(port, () => {
       // eslint-disable-next-line no-console
       console.log(`Server started on URL http://localhost:${port}`);
     });

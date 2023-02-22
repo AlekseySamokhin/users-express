@@ -66,7 +66,7 @@ const getAllBooks = async (
       } else if (sort === '3') {
         books.orderBy('books.author', 'ASC');
       } else if (sort === '4') {
-        books.orderBy('books.rating', 'DESC');
+        books.orderBy('books.averageRating', 'ASC');
       } else if (sort === '5') {
         books.orderBy('books.releaseDate', 'ASC');
       } else {
