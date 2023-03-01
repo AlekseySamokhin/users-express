@@ -11,6 +11,21 @@ import config from './config';
 
 const { port } = config.server;
 
+// eslint-disable-next-line prefer-const
+let onlineUsers: { userId: number; socketId: string }[] = [];
+
+const addNewUser = (userId: number, socketId: string) => {
+  const haveUser = onlineUsers.some((user) => user.userId === userId);
+
+  if (haveUser) return;
+
+  onlineUsers.push({ userId, socketId });
+};
+
+const removeUser = (socketId: string) => {
+  onlineUsers = onlineUsers.filter((user) => user.socketId !== socketId);
+};
+
 (async () => {
   try {
     await connectToDb();
@@ -29,6 +44,22 @@ const { port } = config.server;
         const comments = await addCommentSocket(data);
 
         socket.broadcast.emit('comments', comments);
+      });
+
+      socket.on('newUser', (userId) => {
+        addNewUser(userId, socket.id);
+      });
+
+      socket.on('send_notifications', (data) => {
+        socket.broadcast.emit('get_notification', {
+          user: data.user,
+          bookId: data.bookId,
+          text: data.text,
+        });
+      });
+
+      socket.on('disconnect', () => {
+        removeUser(socket.id);
       });
     });
 
